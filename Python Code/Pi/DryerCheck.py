@@ -97,7 +97,7 @@ if __name__ == '__main__':
     print("Start")
     print("")
     
-    //Setsup 
+    #Setsup 
     sense = SenseHat()
     sense.clear()
 
