@@ -14,6 +14,8 @@ from sense_hat import SenseHat
 #For the sleep command
 import time
 
+#Size of the array
+SIZE = 30
 
 #Initialize arrays for each axes
 arrayX = []
@@ -21,9 +23,9 @@ arrayY = []
 arrayZ = []
 
 #Initialize range used for calculating 
-savedRangeX = -1
-savedRangeY = -1
-savedRangeZ = -1
+global savedRangeX
+global savedRangeY
+global savedRangeZ
 
 global rangeX
 global rangeY
@@ -84,11 +86,11 @@ def arrayCalcRanges():
 
 #If one of the arrays are equal to or more then 
 def arraySizeCheck():
-    if ((len(arrayX) >= 10)|(len(arrayY) >= 10)
-        |(len(arrayZ) >= 10)):
+    if ((len(arrayX) >= SIZE)|(len(arrayY) >= SIZE)
+        |(len(arrayZ) >= SIZE)):
         arrayCalcRanges()
-    else:
-        print("\nArray isn't large enough")
+#    else:
+#        print("\nArray isn't large enough")
 
 
 #Main Method
@@ -97,10 +99,24 @@ if __name__ == '__main__':
     print("Start")
     print("")
     
-    #Setsup 
+    #Setup IMU 
     sense = SenseHat()
     sense.clear()
-
+    
+    #Calibrate the first set when dryer is not moving.
+    count = 0
+    while (count < SIZE):
+        
+        axies = sense.get_accelerometer_raw()
+        appendAxes(axies['x'], axies['y'], axies['z'])
+        arraySizeCheck()    
+        time.sleep(.5)
+        count = count + 1
+        
+    savedRangeX = rangeX
+    savedRangeY = rangeY + (rangeY * .20) #This gives some free room to mess up. Add a variable later.
+    savedRangeZ = rangeZ
+    
     #Constantly  
     while True:
         axies = sense.get_accelerometer_raw()
@@ -108,11 +124,17 @@ if __name__ == '__main__':
         arraySizeCheck()
         time.sleep(.5)
         print("Sleep")
+        
+        
+        #Check if dryer is moving or not. Needs to be added to an if and only runs every SIZE ammount
+        if (rangeY <= savedRangeY):
+            print("Dryer is not moving")
+        else:
+            print("Dryer is moving")
     
 
     
-    if (rangeX <= savedRangeX):
-        print("Machine has stoped")
+
     
     print("")
     print("End")
