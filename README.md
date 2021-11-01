@@ -4,4 +4,6 @@ The Dryer Reminder is my senior project that will use a Raspberry Pi 3, attached
 
 The project is still in development and most of the code written is only for the python application on the Raspberry Pi. 
 
+<p align="center">
 ![Image of Home Wireframe](https://github.com/Mmohler1/DryerReminder/blob/main/Design/Wireframe/Home.png)
+</p>
