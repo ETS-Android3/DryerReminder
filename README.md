@@ -16,6 +16,9 @@ https://github.com/Mmohler1/DryerReminder/tree/main/Design
 The wireframes I made for the android app are also here
 https://github.com/Mmohler1/DryerReminder/tree/main/Design/Wireframe
 
+Project Proposal, Requirements, and User Stories
+https://github.com/Mmohler1/DryerReminder/tree/main/Design/Project%20Proposal
+
 ![Image of Home Wireframe](https://github.com/Mmohler1/DryerReminder/blob/main/Design/Android%20Sitemap.png)
 
 Here is how every page of the android application relates to each other.
