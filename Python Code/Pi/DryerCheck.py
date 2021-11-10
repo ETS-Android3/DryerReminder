@@ -11,6 +11,8 @@
 
 #Let's IMU reed from the excelerameter
 from sense_hat import SenseHat
+
+
 #For the sleep command
 import time
 
