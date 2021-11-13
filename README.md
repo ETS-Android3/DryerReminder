@@ -8,7 +8,7 @@ https://github.com/Mmohler1/DryerReminder/blob/main/Python%20Code/Pi/DryerCheck.
 
 
 
-<img src="https://github.com/Mmohler1/DryerReminder/blob/main/Design/Logical.png)" alt="diagram" width="30%">
+<img src="https://github.com/Mmohler1/DryerReminder/blob/main/Design/Logical.png" alt="diagram" width="30%">
 Architecture of the project and what software it will use.
 
 The design for the entire project can be found here
