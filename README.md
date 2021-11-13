@@ -8,7 +8,8 @@ https://github.com/Mmohler1/DryerReminder/blob/main/Python%20Code/Pi/DryerCheck.
 
 
 
-![Image of Home Wireframe](https://github.com/Mmohler1/DryerReminder/blob/main/Design/Wireframe/Home.png)
+![Image of Home Wireframe](https://github.com/Mmohler1/DryerReminder/blob/main/Design/Logical.png)
+Architecture of the project and what software it will use.
 
 The design for the entire project can be found here
 https://github.com/Mmohler1/DryerReminder/tree/main/Design
