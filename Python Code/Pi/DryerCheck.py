@@ -17,7 +17,7 @@ from sense_hat import SenseHat
 import time
 
 #Size of the array
-SIZE = 30
+SIZE = 60
 
 #Initialize arrays for each axes
 arrayX = []
@@ -60,8 +60,8 @@ def arrayRange(axisA):
             
     range = high - low
     
-    print("High: ", high)
-    print("Low: ", low)
+    print("High: ", high, end =" ")
+    print("Low: ", low, end =" ")
     print("Range: ", range)
 
     return range
@@ -74,11 +74,11 @@ def arrayCalcRanges():
     global rangeZ
     
     #Find the range of each array
-    print("\nX Array:")
+    print("\nX Array:", end =" ")
     rangeX = arrayRange(arrayX)
-    print("\nY Array:")
+    print("\nY Array:", end =" ")
     rangeY = arrayRange(arrayY)
-    print("\nZ Array:")
+    print("\nZ Array:", end =" ")
     rangeZ = arrayRange(arrayZ)
     
     #Clear the array for the next set
@@ -94,11 +94,8 @@ def arraySizeCheck():
 #    else:
 #        print("\nArray isn't large enough")
 
-
-#Main Method
-if __name__ == '__main__':
-    
-    print("Start")
+def mainMethod():
+    print("Starting: Calibration Check")
     print("")
     
     #Setup IMU 
@@ -112,31 +109,38 @@ if __name__ == '__main__':
         axies = sense.get_accelerometer_raw()
         appendAxes(axies['x'], axies['y'], axies['z'])
         arraySizeCheck()    
-        time.sleep(.5)
+        time.sleep(.2)
         count = count + 1
         
     savedRangeX = rangeX
-    savedRangeY = rangeY + (rangeY * .20) #This gives some free room to mess up. Add a variable later.
+    savedRangeY = rangeY + (rangeY * 5) #This gives some free room to mess up. Add a variable later.
     savedRangeZ = rangeZ
+    countCheck = 0
     
+    print("Starting: Shake Detection")
     #Constantly  
     while True:
         axies = sense.get_accelerometer_raw()
         appendAxes(axies['x'], axies['y'], axies['z'])
         arraySizeCheck()
-        time.sleep(.5)
-        print("Sleep")
+        time.sleep(.2)
         
         
-        #Check if dryer is moving or not. Needs to be added to an if and only runs every SIZE ammount
-        if (rangeY <= savedRangeY):
-            print("Dryer is not moving")
-        else:
-            print("Dryer is moving")
-    
-
-    
-
+        if (len(arrayY) == 0):
+            #Check if dryer is moving or not. Needs to be added to an if and only runs every SIZE ammount
+            if (rangeY <= savedRangeY):
+                print("Dryer is not moving")
+                countCheck = countCheck + 1
+                if(countCheck == 2):
+                    print("Dryer has stopped")
+                    break
+            else:
+                print("Dryer is moving")
+                countCheck = 0
     
     print("")
     print("End")
+    
+#Main Method
+if __name__ == '__main__':
+    mainMethod()
