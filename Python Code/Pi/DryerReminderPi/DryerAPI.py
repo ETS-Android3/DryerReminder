@@ -6,9 +6,9 @@ from flask import Flask, request
 from flask_restful import Resource, Api
 import time
 
-import DryerLibrary
-import DryerService
-import WasherService
+#import DryerLibrary
+#import DryerService
+#import WasherService
 import AxesModel
 
 #Intialize the varaibles for handling the ipAddress, port, and the sercurity toekn
@@ -24,9 +24,14 @@ api = Api(app)
 class Dryer(Resource):
     def post(self):
         print("Start - Dryer API")
-        DryerService.dryerCheck()
+        #DryerService.dryerCheck()
+        axes = AxesModel.AxesModel()
+        axes.setAxisX(2)
+        axes.setAxisY(8)
+        axes.setAxisZ(33)
+        print(axes.toJSON())
         print("End - Dryer API") 
-        return  
+        return axes.toJSON()
  
 #Washer method for starting the washer process
 class Washer(Resource): 

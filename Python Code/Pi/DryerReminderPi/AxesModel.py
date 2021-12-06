@@ -1,5 +1,6 @@
 #Model to handel the three Axis for the Accerammeter
 
+import json
 
 class AxesModel:
     
@@ -8,14 +9,18 @@ class AxesModel:
     axisY = 0
     axisZ = 0
 
-
+    
     #Paraterized And Default Constructor
     def __init__(self, x=0,y=0,z=0):
         self.axisX = x
         self.axisY = y
         self.axisZ = z
 
-
+    #Change the model to json to send over API
+    def toJSON(self):
+        return json.dumps(self, default=lambda o: o.__dict__,
+                         sort_keys=True, indent=1)
+    
     #Getters for X, Y, Z varaibles
     def getAxisX(self):
         return self.axisX
