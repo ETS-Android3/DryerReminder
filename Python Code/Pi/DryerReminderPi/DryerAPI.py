@@ -2,11 +2,11 @@
 #
 #
 #
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from flask_restful import Resource, Api
 import time
 
-#import DryerLibrary
+import DryerLibrary
 #import DryerService
 #import WasherService
 import AxesModel
@@ -25,13 +25,10 @@ class Dryer(Resource):
     def post(self):
         print("Start - Dryer API")
         #DryerService.dryerCheck()
-        axes = AxesModel.AxesModel()
-        axes.setAxisX(2)
-        axes.setAxisY(8)
-        axes.setAxisZ(33)
-        print(axes.toJSON())
+        axes = AxesModel.AxesModel(4,7,9)
+        DryerLibrary.appendAxes(axes)
         print("End - Dryer API") 
-        return axes.toJSON()
+        return jsonify(axes.toJSON())
  
 #Washer method for starting the washer process
 class Washer(Resource): 

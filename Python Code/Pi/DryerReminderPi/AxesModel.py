@@ -18,8 +18,12 @@ class AxesModel:
 
     #Change the model to json to send over API
     def toJSON(self):
-        return json.dumps(self, default=lambda o: o.__dict__,
-                         sort_keys=True, indent=1)
+        jsonFormat = {
+            "axisX":self.axisX,
+            "axisY":self.axisY,
+            "axisZ":self.axisZ
+            }
+        return jsonFormat
     
     #Getters for X, Y, Z varaibles
     def getAxisX(self):
