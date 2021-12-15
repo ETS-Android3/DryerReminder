@@ -2,7 +2,7 @@
 #
 #
 #
-from flask import Flask, request, jsonify
+from flask import Flask, jsonify, make_response
 from flask_restful import Resource, Api
 import time
 
@@ -25,32 +25,39 @@ class Dryer(Resource):
     def post(self):
         print("Start - Dryer API")
         #DryerService.dryerCheck()
-        axes = AxesModel.AxesModel(4,7,9)
-        DryerLibrary.appendAxes(axes)
+
         print("End - Dryer API") 
-        return jsonify(axes.toJSON())
+        return 
  
 #Washer method for starting the washer process
 class Washer(Resource): 
     def post(self):
         print("Start - Washer API")
-        WasherService.washerCheck()
+        #WasherService.washerCheck()
         print("End - Washer API") 
         return 
   
-#Calibrate the accelerameter by saving the axes and sending the results back.
+#Calibrate the accelerometer by saving the axes and sending the results back.
 class Calibrate(Resource): 
     def post(self):
         print("Start - Calibrate API")
-        CalibrateService.calibrateRange()
-        print("End - Calibrate API") 
-        return 
+        
+        #This will return a method of the range for when the device is not moving
+        #CalibrateService.calibrateRange()
+        
+        axes = AxesModel.AxesModel(4,7,9)
+        
+        try:
+            print("End - Calibrate API") 
+            return make_response(jsonify(axes.toJSON()), 200)
+        except:
+            return make_response("Error", 400)
 
 #Update the offset to better detect when the device is or is not moving.
 class Adjust(Resource): 
     def post(self):
         print("Start - Adjust API")
-        DryerLibrary.setOffset()
+        #DryerLibrary.setOffset()
         print("End - adjust API") 
         return 
 
