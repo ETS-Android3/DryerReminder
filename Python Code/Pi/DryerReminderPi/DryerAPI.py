@@ -7,7 +7,7 @@ Author: Michael Mohler
 Data: 12/07/21
 Version: 1
 """
-from flask import Flask, jsonify, make_response
+from flask import Flask, jsonify, make_response, request
 from flask_restful import Resource, Api
 import time
 
@@ -33,11 +33,24 @@ Returns a response status code to let the user know when thier dryer has stopped
 class Dryer(Resource):
     def post(self):
         print("Start - Dryer API")
-        #DryerService.dryerCheck()
-
-        print("End - Dryer API") 
-        return make_response("Dryer", 200)
- 
+        
+        try:
+            #JSON data is pulled which contains the saved ranges of each axis
+            json_data = request.get_json()
+            x = json_data['axisX'] + 1
+            y = json_data['axisY'] + 1
+            z = json_data['axisZ'] + 1
+            
+            
+            axes = AxesModel.AxesModel(x,y,z)
+            
+            #The dryer service is called with which saved range to use
+            #DryerService.dryerCheck(axes)
+            
+            print("End - Dryer API") 
+            return make_response(jsonify(axes.toJSON()), 200)
+        except:
+            return make_response("Invalid input, object was invalid", 400)
  
 """Washer Class for starting the Washer process after taking in the saved AxesModel values
 Returns a response status code to let the user know when thier washer has stopped moving"""
@@ -55,20 +68,19 @@ class Calibrate(Resource):
     def post(self):
         print("Start - Calibrate API")
             
-            #Try to call the calibrate service and return the range
-            try:
-            
+        #Try to call the calibrate service and return the range
+        try:
             #This will return an axes model of the range for when the device is not moving
             #axes = CalibrateService.calibrateRange()
             axes = AxesModel.AxesModel(4,7,9) #currently used to showcase the API
-
+        
             print("End - Calibrate API") 
             return make_response(jsonify(axes.toJSON()), 200) #Returns the axes in JSON
         except:
             return make_response("Error", 400)   #An error has happened
 
 
-"""#Update the offset to better detect when the device is or is not moving.
+"""Update the offset to better detect when the device is or is not moving.
 Returns a response status code"""
 class Adjust(Resource): 
     def post(self):
