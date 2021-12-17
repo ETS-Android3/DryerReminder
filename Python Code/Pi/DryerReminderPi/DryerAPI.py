@@ -7,20 +7,21 @@ Author: Michael Mohler
 Data: 12/07/21
 Version: 1
 """
+#import time
 from flask import Flask, jsonify, make_response, request
 from flask_restful import Resource, Api
-import time
 
-import DryerLibrary
+
+#import DryerLibrary
 #import DryerService
 #import WasherService
 import AxesModel
 
 
 #Intialize the varaibles for handling the ipAddress, port, and the sercurity token.
-ipAddress = ""
-port = "7069"
-token = ""
+IPADDRESS = ""
+PORT = "7069"
+TOKEN = ""
 
 #Defines the service to run and API's to start.
 app = Flask(__name__)
@@ -28,67 +29,85 @@ api = Api(app)
 
 
 
-"""Dryer Class for starting the dryer process after taking in the saved AxesModel values
-Returns a response status code to let the user know when thier dryer has stopped moving"""
 class Dryer(Resource):
-    def post(self):
+    """Dryer Class for starting the dryer process after taking in the saved AxesModel values
+    Returns a response status code to let the user know when thier dryer has stopped moving"""
+
+    @classmethod
+    def post(cls):
+        "Post for Dryer"
+
         print("Start - Dryer API")
-        
+
         try:
             #JSON data is pulled which contains the saved ranges of each axis
             json_data = request.get_json()
-            x = json_data['axisX'] + 1
-            y = json_data['axisY'] + 1
-            z = json_data['axisZ'] + 1
-            
-            
-            axes = AxesModel.AxesModel(x,y,z)
-            
+            axis_x = json_data['axisX'] + 1
+            axis_y = json_data['axisY'] + 1
+            axis_z = json_data['axisZ'] + 1
+
+
+            axes = AxesModel.AxesModel(axis_x, axis_y, axis_z)
+
             #The dryer service is called with which saved range to use
             #DryerService.dryerCheck(axes)
-            
-            print("End - Dryer API") 
-            return make_response(jsonify(axes.toJSON()), 200)
-        except:
+
+            print("End - Dryer API")
+            return make_response(jsonify(axes.to_json()), 200)
+        except TypeError:
             return make_response("Invalid input, object was invalid", 400)
- 
-"""Washer Class for starting the Washer process after taking in the saved AxesModel values
-Returns a response status code to let the user know when thier washer has stopped moving"""
-class Washer(Resource): 
-    def post(self):
+        except:
+            return make_response("System Error", 500)
+
+
+class Washer(Resource):
+    """Washer Class for starting the Washer process after taking in the saved AxesModel values
+    Returns a response status code to let the user know when thier washer has stopped moving"""
+
+    @classmethod
+    def post(cls):
+        """Post for Washer"""
+
         print("Start - Washer API")
         #WasherService.washerCheck()
-        print("End - Washer API") 
+        print("End - Washer API")
         return  make_response("Washer", 200)
 
 
-"""#Calibrate the accelerometer by saving the axes and sending the results back over JSON
-Returns a response status code and JSON of the Axes model"""
-class Calibrate(Resource): 
-    def post(self):
+class Calibrate(Resource):
+    """#Calibrate the accelerometer by saving the axes and sending the results back over JSON
+    Returns a response status code and JSON of the Axes model"""
+
+    @classmethod
+    def post(cls):
+        """Post for Calibrate"""
+
         print("Start - Calibrate API")
-            
+
         #Try to call the calibrate service and return the range
         try:
             #This will return an axes model of the range for when the device is not moving
             #axes = CalibrateService.calibrateRange()
             axes = AxesModel.AxesModel(4,7,9) #currently used to showcase the API
-        
-            print("End - Calibrate API") 
-            return make_response(jsonify(axes.toJSON()), 200) #Returns the axes in JSON
+
+            print("End - Calibrate API")
+            return make_response(jsonify(axes.to_json()), 200) #Returns the axes in JSON
         except:
             return make_response("Error", 400)   #An error has happened
 
 
-"""Update the offset to better detect when the device is or is not moving.
-Returns a response status code"""
-class Adjust(Resource): 
-    def post(self):
+class Adjust(Resource):
+    """Update the offset to better detect when the device is or is not moving.
+    Returns a response status code"""
+
+    @classmethod
+    def post(cls):
+        """Post for Adjust"""
         print("Start - Adjust API")
-        
+
         #DryerLibrary.setOffset()
-        
-        print("End - adjust API") 
+
+        print("End - adjust API")
         return make_response("Adjust", 200)
 
 
@@ -102,4 +121,4 @@ api.add_resource(Adjust, '/DryPi/adjust')
 
 #Runs the service when started, defines the host and port.
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=port)
+    app.run(debug=True, host='0.0.0.0', port=PORT)

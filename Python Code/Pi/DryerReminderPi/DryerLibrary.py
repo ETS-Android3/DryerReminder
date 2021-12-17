@@ -24,7 +24,6 @@ axes = []
 
 #Initialize range used for calculating 
 global savedRange
-
 global rangeAxes
 
 
