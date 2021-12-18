@@ -35,7 +35,9 @@ class Dryer(Resource):
 
     @classmethod
     def post(cls):
-        "Post for Dryer"
+        """Post for Dryer
+
+        Return: JSON and Response status"""
 
         print("Start - Dryer API")
 
@@ -66,7 +68,9 @@ class Washer(Resource):
 
     @classmethod
     def post(cls):
-        """Post for Washer"""
+        """Post for Washer
+
+        Return: JSON and Response status"""
 
         print("Start - Washer API")
         #WasherService.washerCheck()
@@ -80,7 +84,9 @@ class Calibrate(Resource):
 
     @classmethod
     def post(cls):
-        """Post for Calibrate"""
+        """Post for Calibrate
+
+        Return: JSON and Response status"""
 
         print("Start - Calibrate API")
 
@@ -102,7 +108,10 @@ class Adjust(Resource):
 
     @classmethod
     def post(cls):
-        """Post for Adjust"""
+        """Post for Adjust
+
+        Return: JSON and Response status"""
+
         print("Start - Adjust API")
 
         #DryerLibrary.setOffset()

@@ -7,7 +7,7 @@ Version: 1
 """
 class AxesModel:
     """Axes Object Model"""
-    
+
     #Varaibles for each axis
     axis_x = 0
     axis_y = 0
@@ -26,14 +26,16 @@ class AxesModel:
 
     def to_json(self):
         """Converts the current AxesModel object into a JSON like object
-        Returns A JSON format after being used with jsonify"""
-        
+        Returns A JSON format after being used with jsonify
+
+        Return: JSON data"""
+
         json_format = {
             "axisX":self.axis_x,
             "axisY":self.axis_y,
             "axisZ":self.axis_z
             }
-        
+
         return json_format
 
     #---Getters for X, Y, Z varaibles---
