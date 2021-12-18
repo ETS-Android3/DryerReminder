@@ -74,12 +74,12 @@ def arrayCalcRanges():
     global rangeZ
     
     #Find the range of each array
-    print("\nX Array:", end =" ")
-    rangeX = arrayRange(arrayX)
+    #print("\nX Array:", end =" ")
+    rangeX = 0 #arrayRange(arrayX)
     print("\nY Array:", end =" ")
     rangeY = arrayRange(arrayY)
-    print("\nZ Array:", end =" ")
-    rangeZ = arrayRange(arrayZ)
+    #print("\nZ Array:", end =" ")
+    rangeZ = 0 # arrayRange(arrayZ)
     
     #Clear the array for the next set
     arrayX.clear()
@@ -129,13 +129,15 @@ def mainMethod():
         if (len(arrayY) == 0):
             #Check if dryer is moving or not. Needs to be added to an if and only runs every SIZE ammount
             if (rangeY <= savedRangeY):
-                print("Dryer is not moving")
+                print()
+                print("==Dryer is not moving==")
                 countCheck = countCheck + 1
                 if(countCheck == 2):
                     print("Dryer has stopped")
                     break
             else:
-                print("Dryer is moving")
+                print()
+                print("==Dryer is moving==")
                 countCheck = 0
     
     print("")
