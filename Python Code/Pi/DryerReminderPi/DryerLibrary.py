@@ -35,46 +35,63 @@ def appendAxes(AxesModel):
     
     
 
-#Get's range of the array inserted. 
+#Get's range of the axes array inserted. 
 def arrayRange(axisA):
     
-    #initalize the varible for the largest and smallest values
-    high = axisA[0]
-    low = axisA[0]
+    #initalize the varible for the largest and smallest values of
+    highX = axisA[0].get_axis_x()
+    lowX = axisA[0].get_axis_x()
+
+    highY = axisA[0].get_axis_y()
+    lowY = axisA[0].get_axis_y()
+
+    highZ = axisA[0].get_axis_z()
+    lowZ = axisA[0].get_axis_z()
     
-    #Loop through array to find largest and smallest value.
+    #Loop through array to find largest and smallest value of x.
     for e in axisA:
-        if high < e: 
-            high = e
-        elif low > e:
-            low = e
-            
-    range = high - low
-    
-    print("High: ", high, end =" ")
-    print("Low: ", low, end =" ")
-    print("Range: ", range)
+        
+        #X axis
+        if highX < e.get_axis_x(): 
+            highX = e.get_axis_x()
+        elif lowX > e.get_axis_x():
+            lowX = e.get_axis_x()
+        
+        #Y axis
+        if highY < e.get_axis_y(): 
+            highY = e.get_axis_y()
+        elif lowY > e.get_axis_y():
+            lowY = e.get_axis_y()
 
-    return range
+        #Z axis
+        if highZ < e.get_axis_z(): 
+            highZ = e.get_axis_z()
+        elif lowZ > e.get_axis_z():
+            lowZ = e.get_axis_z()
 
-#Needs a lot of work
+    #Save and print range 
+    rangeX = highX - lowX
+    rangeY = highY - lowY
+    rangeZ = highZ - lowZ
+
+    #Save range to axes model
+    foundRange = AxesModel.AxesModel(rangeX, rangeY, rangeZ)
+
+    #Print Range
+    print("Range X: ", rangeX)
+    print("Range Y: ", rangeY)
+    print("Range Z: ", rangeZ)
+
+    return foundRange
+
+
 #Save the ranges of the axis arrays to their ranges and clear them
 def arrayCalcRanges():
     #Define the global variables so they can be looked at outside of the function.
-    global rangeX
-    global rangeY
-    global rangeZ
+    global rangeAxes
     
-    #Find the range of each array
-    print("\nX Array:", end =" ")
-    rangeX = arrayRange(arrayX)
-    print("\nY Array:", end =" ")
-    rangeY = arrayRange(arrayY)
-    print("\nZ Array:", end =" ")
-    rangeZ = arrayRange(arrayZ)
-    
-    rangeAxes = AxesModel(rangeX, rangeY, rangeZ)
-    
+    rangeAxes = arrayRange(axes) 
+
     #Clear the array for the next set
     axes.clear()
 
@@ -85,7 +102,13 @@ def arraySizeCheck():
         arrayCalcRanges()
 
 
-def mainMethod():
+
+
+
+
+
+
+def calibrate():
     print("Starting: Calibration Check")
     print("")
     
@@ -98,28 +121,50 @@ def mainMethod():
     while (count < SIZE):
         
         axies = sense.get_accelerometer_raw()
-        appendAxes(axies['x'], axies['y'], axies['z'])
+        appendAxes(AxesModel.AxesModel(axies['x'], axies['y'], axies['z']))
         arraySizeCheck()    
         time.sleep(.2)
         count = count + 1
-        
-    savedRangeX = rangeX + (rangeY * 5)
-    savedRangeY = rangeY + (rangeY * 5) #This gives some free room to mess up. Add a variable later.
-    savedRangeZ = rangeZ + (rangeY * 5)
-    countCheck = 0
+
+    #Offset needs to be moved to main method
+    savedRangeX = rangeAxes.get_axis_x() + (rangeAxes.get_axis_x() * 5)
+    savedRangeY = rangeAxes.get_axis_y() + (rangeAxes.get_axis_y() * 5)
+    savedRangeZ = rangeAxes.get_axis_z() + (rangeAxes.get_axis_z() * 5)
+
+    print("Ending: Calibration Check")
+
+    return AxesModel.AxesModel(savedRangeX, savedRangeY, savedRangeZ)
+
+
+
+
+
+
+
+def justMain(givenRange):
     
+    countCheck = 0
+
+    global savedRange  
+    savedRange = givenRange
+
     print("Starting: Shake Detection")
+
+    #Setup IMU 
+    sense = SenseHat()
+    sense.clear()
+
     #Constantly  
     while True:
         axies = sense.get_accelerometer_raw()
-        appendAxes(axies['x'], axies['y'], axies['z'])
+        appendAxes(AxesModel.AxesModel(axies['x'], axies['y'], axies['z']))
         arraySizeCheck()
         time.sleep(.2)
         
         
-        if (len(arrayY) == 0):
+        if (len(axes) == 0):
             #Check if dryer is moving or not. Needs to be added to an if and only runs every SIZE ammount
-            if (rangeY <= savedRangeY):
+            if (rangeAxes.get_axis_y() <= savedRange.get_axis_y()):
                 print()
                 print("==Dryer is not moving==")
                 countCheck = countCheck + 1
@@ -136,4 +181,4 @@ def mainMethod():
     
 #Main Method
 if __name__ == '__main__':
-    mainMethod()
+    justMain()

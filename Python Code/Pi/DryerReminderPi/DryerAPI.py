@@ -12,7 +12,7 @@ from flask import Flask, jsonify, make_response, request
 from flask_restful import Resource, Api
 
 
-#import DryerLibrary
+import DryerLibrary
 #import DryerService
 #import WasherService
 import AxesModel
@@ -44,15 +44,15 @@ class Dryer(Resource):
         try:
             #JSON data is pulled which contains the saved ranges of each axis
             json_data = request.get_json()
-            axis_x = json_data['axisX'] + 1
-            axis_y = json_data['axisY'] + 1
-            axis_z = json_data['axisZ'] + 1
+            axis_x = json_data['axisX']
+            axis_y = json_data['axisY']
+            axis_z = json_data['axisZ']
 
 
             axes = AxesModel.AxesModel(axis_x, axis_y, axis_z)
 
             #The dryer service is called with which saved range to use
-            #DryerService.dryerCheck(axes)
+            DryerLibrary.justMain(axes)
 
             print("End - Dryer API")
             return make_response(jsonify(axes.to_json()), 200)
@@ -93,8 +93,7 @@ class Calibrate(Resource):
         #Try to call the calibrate service and return the range
         try:
             #This will return an axes model of the range for when the device is not moving
-            #axes = CalibrateService.calibrateRange()
-            axes = AxesModel.AxesModel(4,7,9) #currently used to showcase the API
+            axes = DryerLibrary.calibrate()
 
             print("End - Calibrate API")
             return make_response(jsonify(axes.to_json()), 200) #Returns the axes in JSON
