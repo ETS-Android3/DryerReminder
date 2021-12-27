@@ -13,13 +13,13 @@ from flask_restful import Resource, Api
 
 
 import DryerLibrary
-#import DryerService
+import DryerService
 #import WasherService
 import AxesModel
 
 
 #Intialize the varaibles for handling the ipAddress, port, and the sercurity token.
-IPADDRESS = ""
+IPADDRESS = '192.168.0.23'
 PORT = "7069"
 TOKEN = ""
 
@@ -52,7 +52,7 @@ class Dryer(Resource):
             axes = AxesModel.AxesModel(axis_x, axis_y, axis_z)
 
             #The dryer service is called with which saved range to use
-            DryerLibrary.justMain(axes)
+            DryerService.DryerService.dryerCheck(axes)
 
             print("End - Dryer API")
             return make_response(jsonify(axes.to_json()), 200)
@@ -129,4 +129,4 @@ api.add_resource(Adjust, '/DryPi/adjust')
 
 #Runs the service when started, defines the host and port.
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=PORT)
+    app.run(debug=True, host=IPADDRESS, port=PORT)
