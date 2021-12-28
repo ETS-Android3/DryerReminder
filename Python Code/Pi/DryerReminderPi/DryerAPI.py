@@ -14,8 +14,10 @@ from flask_restful import Resource, Api
 
 import DryerLibrary
 import DryerService
+import CalibrateService
 #import WasherService
 import AxesModel
+import logging
 
 
 #Intialize the varaibles for handling the ipAddress, port, and the sercurity token.
@@ -27,6 +29,8 @@ TOKEN = ""
 app = Flask(__name__)
 api = Api(app)
 
+#Logging Configure
+logging.basicConfig(filename='dryer.log', format='%(asctime)s-%(levelname)s-%(message)s', level=logging.DEBUG)
 
 
 class Dryer(Resource):
@@ -39,26 +43,32 @@ class Dryer(Resource):
 
         Return: JSON and Response status"""
 
+        logging.debug("Start - Dryer API")
         print("Start - Dryer API")
 
         try:
             #JSON data is pulled which contains the saved ranges of each axis
             json_data = request.get_json()
-            axis_x = json_data['axisX']
-            axis_y = json_data['axisY']
-            axis_z = json_data['axisZ']
+            axis_x = 0 + json_data['axisX']
+            axis_y = 0 + json_data['axisY']
+            axis_z = 0 + json_data['axisZ']
 
-
+            logging.debug("DryerAPI - Axes Range is:")
             axes = AxesModel.AxesModel(axis_x, axis_y, axis_z)
+            logging.debug('Axis X: %s Axis Y: %s Axis Z: %s', axis_x, axis_y, axis_z)
 
             #The dryer service is called with which saved range to use
             DryerService.DryerService.dryerCheck(axes)
 
             print("End - Dryer API")
+            logging.debug("End - Dryer API")
+
             return make_response(jsonify(axes.to_json()), 200)
         except TypeError:
+            logging.error("Invalid input, object was invalid")
             return make_response("Invalid input, object was invalid", 400)
         except:
+            logging.error("Unknown Error")
             return make_response("System Error", 500)
 
 
@@ -73,8 +83,13 @@ class Washer(Resource):
         Return: JSON and Response status"""
 
         print("Start - Washer API")
+        logging.debug("Start - Washer API")
+
         #WasherService.washerCheck()
+
         print("End - Washer API")
+        logging.debug("End - Dryer API")
+
         return  make_response("Washer", 200)
 
 
@@ -88,16 +103,19 @@ class Calibrate(Resource):
 
         Return: JSON and Response status"""
 
+        logging.debug("Start - Calibrate API")
         print("Start - Calibrate API")
 
         #Try to call the calibrate service and return the range
         try:
             #This will return an axes model of the range for when the device is not moving
-            axes = DryerLibrary.calibrate()
+            axes = CalibrateService.CalibrateService.calibrateRange()
 
+            logging.debug("End - Calibrate API")
             print("End - Calibrate API")
             return make_response(jsonify(axes.to_json()), 200) #Returns the axes in JSON
         except:
+            logging.error("Unknown Error")
             return make_response("Error", 400)   #An error has happened
 
 
@@ -111,10 +129,12 @@ class Adjust(Resource):
 
         Return: JSON and Response status"""
 
+        logging.debug("Start - Adjust API")
         print("Start - Adjust API")
 
         #DryerLibrary.setOffset()
 
+        logging.debug("End - Adjust API")
         print("End - adjust API")
         return make_response("Adjust", 200)
 
