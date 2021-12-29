@@ -22,10 +22,9 @@ SIZE = 60
 #Initialize arrays for each axes
 axes = []
 
-#Initialize range used for calculating 
+#Initialize range used for calculating
 global savedRange
 global rangeAxes
-
 
 
 
@@ -102,7 +101,19 @@ def arraySizeCheck():
         arrayCalcRanges()
 
 
+#Save offset to a file to read from later.
+def setOffset(newOffset):
+    file = open('config.txt', 'w')
+    file.write(str(newOffset))
+    file.close()
 
+
+#pull the offset from a file and return it as an int
+def getOffset():
+    file = open('config.txt', 'r')
+    data = file.read()
+    file.close()
+    return int(data)
 
 
 
@@ -127,9 +138,9 @@ def calibrate():
         count = count + 1
 
     #Offset needs to be moved to main method
-    savedRangeX = rangeAxes.get_axis_x() + (rangeAxes.get_axis_x() * 5)
-    savedRangeY = rangeAxes.get_axis_y() + (rangeAxes.get_axis_y() * 5)
-    savedRangeZ = rangeAxes.get_axis_z() + (rangeAxes.get_axis_z() * 5)
+    savedRangeX = rangeAxes.get_axis_x()
+    savedRangeY = rangeAxes.get_axis_y()
+    savedRangeZ = rangeAxes.get_axis_z()
 
     print("Ending: Calibration Check")
 
@@ -145,8 +156,19 @@ def justMain(givenRange):
     
     countCheck = 0
 
-    global savedRange  
-    savedRange = givenRange
+    global savedRange 
+
+    setOffset(2)
+    offset = getOffset()
+    
+
+
+    #create the offset for each axis
+    savedRangeX = givenRange.get_axis_x() + (givenRange.get_axis_x() * offset)
+    savedRangeY = givenRange.get_axis_y() + (givenRange.get_axis_y() * offset)
+    savedRangeZ = givenRange.get_axis_z() + (givenRange.get_axis_z() * offset)
+
+    savedRange = AxesModel.AxesModel(savedRangeX, savedRangeY, savedRangeZ)
 
     print("Starting: Shake Detection")
 

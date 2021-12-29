@@ -61,6 +61,7 @@ class Dryer(Resource):
             DryerService.DryerService.dryerCheck(axes)
 
             print("End - Dryer API")
+            print()
             logging.debug("End - Dryer API")
 
             return make_response(jsonify(axes.to_json()), 200)
@@ -88,6 +89,7 @@ class Washer(Resource):
         #WasherService.washerCheck()
 
         print("End - Washer API")
+        print()
         logging.debug("End - Dryer API")
 
         return  make_response("Washer", 200)
@@ -113,6 +115,7 @@ class Calibrate(Resource):
 
             logging.debug("End - Calibrate API")
             print("End - Calibrate API")
+            print() 
             return make_response(jsonify(axes.to_json()), 200) #Returns the axes in JSON
         except:
             logging.error("Unknown Error")
@@ -131,11 +134,18 @@ class Adjust(Resource):
 
         logging.debug("Start - Adjust API")
         print("Start - Adjust API")
+        
+        #JSON data is pulled which contains the saved ranges of each axis
+        json_data = request.get_json()
+        offset = json_data['adjust']
 
-        #DryerLibrary.setOffset()
+
+        print("Adjust Number is ", offset)
+        DryerLibrary.setOffset(offset)
 
         logging.debug("End - Adjust API")
-        print("End - adjust API")
+        print("End - Adjust API")
+        print() 
         return make_response("Adjust", 200)
 
 
