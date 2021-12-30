@@ -49,6 +49,7 @@ class Dryer(Resource):
         try:
             #JSON data is pulled which contains the saved ranges of each axis
             json_data = request.get_json()
+
             axis_x = 0 + json_data['axisX']
             axis_y = 0 + json_data['axisY']
             axis_z = 0 + json_data['axisZ']
@@ -58,7 +59,7 @@ class Dryer(Resource):
             logging.debug('Axis X: %s Axis Y: %s Axis Z: %s', axis_x, axis_y, axis_z)
 
             #The dryer service is called with which saved range to use
-            DryerService.DryerService.dryerCheck(axes)
+            DryerService.DryerService.dryer_check(axes)
 
             print("End - Dryer API")
             print()
@@ -135,18 +136,31 @@ class Adjust(Resource):
         logging.debug("Start - Adjust API")
         print("Start - Adjust API")
         
-        #JSON data is pulled which contains the saved ranges of each axis
-        json_data = request.get_json()
-        offset = json_data['adjust']
+        try:
+            #JSON data is pulled which contains the saved ranges of each axis
+            json_data = request.get_json()
+            offset = 0 + json_data['adjust']
 
+            #Checks if the offset is between 0 and 5
+            if (offset < 0) or (offset > 5):
+                logging.error("Invalid input %s", offset)
+                logging.error("Needs to be between 0 and 5")
+                return make_response("Invalid input, needs to be between 0 and 5", 400)
+            else:
+                print("Adjust Number is ", offset)
+                DryerLibrary.set_offset(offset)
 
-        print("Adjust Number is ", offset)
-        DryerLibrary.setOffset(offset)
-
-        logging.debug("End - Adjust API")
-        print("End - Adjust API")
-        print() 
-        return make_response("Adjust", 200)
+                logging.debug("End - Adjust API")
+                print("End - Adjust API")
+                print() 
+                return make_response("Adjust", 200)
+        
+        except TypeError:
+            logging.error("Invalid input, object was invalid")
+            return make_response("Invalid input, object was invalid", 400)
+        except:
+            logging.error("Unknown Error")
+            return make_response("System Error", 500)
 
 
 #A class will be called depending on the URI that was called over the service
