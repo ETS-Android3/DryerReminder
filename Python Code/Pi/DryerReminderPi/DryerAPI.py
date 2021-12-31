@@ -7,17 +7,17 @@ Author: Michael Mohler
 Data: 12/07/21
 Version: 1
 """
-#import time
+import logging
+
 from flask import Flask, jsonify, make_response, request
 from flask_restful import Resource, Api
-
 
 import DryerLibrary
 import DryerService
 import CalibrateService
 #import WasherService
 import AxesModel
-import logging
+
 
 
 #Intialize the varaibles for handling the ipAddress, port, and the sercurity token.
@@ -30,7 +30,8 @@ app = Flask(__name__)
 api = Api(app)
 
 #Logging Configure
-logging.basicConfig(filename='dryer.log', format='%(asctime)s-%(levelname)s-%(message)s', level=logging.DEBUG)
+logging.basicConfig(filename='dryer.log',
+    format='%(asctime)s-%(levelname)s-%(message)s', level=logging.DEBUG)
 
 
 class Dryer(Resource):
@@ -116,7 +117,7 @@ class Calibrate(Resource):
 
             logging.debug("End - Calibrate API")
             print("End - Calibrate API")
-            print() 
+            print()
             return make_response(jsonify(axes.to_json()), 200) #Returns the axes in JSON
         except:
             logging.error("Unknown Error")
@@ -135,7 +136,7 @@ class Adjust(Resource):
 
         logging.debug("Start - Adjust API")
         print("Start - Adjust API")
-        
+
         try:
             #JSON data is pulled which contains the saved ranges of each axis
             json_data = request.get_json()
@@ -146,15 +147,15 @@ class Adjust(Resource):
                 logging.error("Invalid input %s", offset)
                 logging.error("Needs to be between 0 and 5")
                 return make_response("Invalid input, needs to be between 0 and 5", 400)
-            else:
-                print("Adjust Number is ", offset)
-                DryerLibrary.set_offset(offset)
 
-                logging.debug("End - Adjust API")
-                print("End - Adjust API")
-                print() 
-                return make_response("Adjust", 200)
-        
+            print("Adjust Number is ", offset)
+            DryerLibrary.set_offset(offset)
+
+            logging.debug("End - Adjust API")
+            print("End - Adjust API")
+            print()
+            return make_response("Adjust", 200)
+
         except TypeError:
             logging.error("Invalid input, object was invalid")
             return make_response("Invalid input, object was invalid", 400)
