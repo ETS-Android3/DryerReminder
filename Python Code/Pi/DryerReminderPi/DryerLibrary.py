@@ -37,14 +37,19 @@ logging.basicConfig(filename='dryer.log',
 
 
 def append_axes(AxesModel):
-    """Adds values in the x, y, and z arrays at the same time."""
+    """Adds values in the x, y, and z arrays at the same time.
+    
+    Arg: Current x,y,and z value from accelerometer"""
     
     logging.debug("     ~ Append Axis X: %s Axis Y: %s Axis Z: %s", AxesModel.get_axis_x(),AxesModel.get_axis_y(), AxesModel.get_axis_z())
     axes.append(AxesModel)
 
 
 def array_range(axis_a):
-    """Get's range of the axes array inserted."""
+    """Get's range of the axes array inserted.
+    
+    Arg: Array of AxesModel
+    Return: AxesModel of the range"""
 
     #initalize the varible for the largest and smallest values of
     high_x = axis_a[0].get_axis_x()
@@ -86,6 +91,7 @@ def array_range(axis_a):
     found_range = AxesModel.AxesModel(range_x, range_y, range_z)
 
     #Print Range
+    print()
     print("Range X: ", range_x)
     print("Range Y: ", range_y)
     print("Range Z: ", range_z)
@@ -119,7 +125,8 @@ def array_size_check():
 
 
 def set_offset(new_offset):
-    """Save the offset to a file so the Pi will always remember it"""
+    """Save the offset to a file so the Pi will always remember it
+    Arg: Float of the offset the user wants"""
     
     #Opens file to write adjust number to it.
     logging.debug("Saving Adjust to config file")
@@ -137,7 +144,8 @@ def set_offset(new_offset):
 
 
 def get_offset():
-    """Read the offset from the config.txt file"""
+    """Read the offset from the config.txt file
+    Return: Float of the offset"""
     
     logging.debug("Pulling Adjust to config file")
     try:
@@ -155,7 +163,9 @@ def get_offset():
 
 
 def calibrate():
-    """Calibrate the range of the accelerometer when it is not moving"""
+    """Calibrate the range of the accelerometer when it is not moving
+    Return: AxesModel of the range"""
+    
     logging.debug("Starting: Calibration Check")
     print("Starting: Calibration Check")
     print("")
@@ -186,7 +196,8 @@ def calibrate():
 
 
 def justMain(given_range):
-    """Compare the range of the accelerometer to the range when it is not moving"""
+    """Compare the range of the accelerometer to the range when it is not moving
+    Args: AxesModel of the calibrated saved range"""
 
     count_check = 0
     global saved_range
@@ -217,23 +228,23 @@ def justMain(given_range):
         array_size_check()
         time.sleep(.2)
 
-
         if len(axes) == 0:
             #Check if dryer is moving or not.
-            if (range_axes.get_axis_x() <= saved_range.get_axis_x()) and (range_axes.get_axis_y() <= saved_range.get_axis_y()) and (range_axes.get_axis_z() <= saved_range.get_axis_z()):
+            if (range_axes.get_axis_x() >= saved_range.get_axis_x()) or (range_axes.get_axis_y() >= saved_range.get_axis_y()) or (range_axes.get_axis_z() >= saved_range.get_axis_z()):
+                print("==Dryer is moving==")
+                logging.debug("==Dryer is moving==")
+                count_check = 0
+            else:
                 print("==Dryer is not moving==")
                 print()
                 logging.debug("==Dryer is not moving==")
                 count_check = count_check + 1
                 if count_check == 2:
-                    print()
                     print("===Dryer has stopped===")
                     logging.debug("===Dryer has stopped===")
                     break
-            else:
-                print("==Dryer is moving==")
-                logging.debug("==Dryer is moving==")
-                count_check = 0
+
+
 
     print("")
     print("Ending: Shake Detection")
@@ -243,4 +254,5 @@ def justMain(given_range):
 if __name__ == '__main__':
     #calibrate()
     #justMain(AxesModel.AxesModel(.02, .004, .06))
-    justMain(calibrate())
+    while True:
+        justMain(calibrate())

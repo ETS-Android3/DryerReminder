@@ -4,21 +4,24 @@ Author: Michael Mohler
 Data: 12/26/21
 Version: 1
 """
-
-import DryerLibrary
-import AxesModel
 import logging
+import DryerLibrary
+
 
 class CalibrateService:
-    
-    def calibrateRange():
+    """Calibrate Service to be used as an inbetween for the api and library"""
+
+    def calibrate_range():
+        """Calls the library service to calibrate the device
+        
+         Return: AxesModel of the calibrated range"""
+
         logging.debug("Start - Calibrate Service")
-        savedRange = DryerLibrary.calibrate()
+        saved_range = DryerLibrary.calibrate()
 
         logging.debug("Calibrate - Axes Range is:")
-        logging.debug('Axis X: %s Axis Y: %s Axis Z: %s', savedRange.get_axis_x(), savedRange.get_axis_y(), savedRange.get_axis_z())
+        logging.debug('Axis X: %s Axis Y: %s Axis Z: %s',
+            saved_range.get_axis_x(), saved_range.get_axis_y(), saved_range.get_axis_z())
         logging.debug("End - Calibrate Service")
 
-        return savedRange
-
-
+        return saved_range

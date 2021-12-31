@@ -16,7 +16,7 @@ logging.basicConfig(filename='dryer.log',
     format='%(asctime)s-%(levelname)s-%(message)s', level=logging.DEBUG)
 
 class DryerService:
-    """Service to be used as an inbetween for the api and library"""
+    """Shake Detection Service to be used as an inbetween for the api and library"""
 
     def dryer_check(saved_range):
         """Calls the library service with the saved ranges.

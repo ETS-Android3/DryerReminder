@@ -113,7 +113,7 @@ class Calibrate(Resource):
         #Try to call the calibrate service and return the range
         try:
             #This will return an axes model of the range for when the device is not moving
-            axes = CalibrateService.CalibrateService.calibrateRange()
+            axes = CalibrateService.CalibrateService.calibrate_range()
 
             logging.debug("End - Calibrate API")
             print("End - Calibrate API")
