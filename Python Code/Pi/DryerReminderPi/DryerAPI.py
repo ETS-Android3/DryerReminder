@@ -12,6 +12,8 @@ import logging
 from flask import Flask, jsonify, make_response, request
 from flask_restful import Resource, Api
 
+from flask_httpauth import HTTPTokenAuth
+
 import DryerLibrary
 import DryerService
 import CalibrateService
@@ -23,22 +25,33 @@ import AxesModel
 #Intialize the varaibles for handling the ipAddress, port, and the sercurity token.
 IPADDRESS = '192.168.0.23'
 PORT = "7069"
-TOKEN = ""
+TOKEN = "justUseATimer"
 
 #Defines the service to run and API's to start.
 app = Flask(__name__)
 api = Api(app)
+auth = HTTPTokenAuth(scheme='Bearer')
 
 #Logging Configure
 logging.basicConfig(filename='dryer.log',
     format='%(asctime)s-%(levelname)s-%(message)s', level=logging.DEBUG)
 
+#Method use to verify token for security
+@auth.verify_token
+def verify_token(token):
+    if token == TOKEN:
+        logging.debug("API - Access Authorized:")
+        return True
+    else:
+        logging.debug("API - Access Not Authorized:")
+        return False
 
 class Dryer(Resource):
     """Dryer Class for starting the dryer process after taking in the saved AxesModel values
     Returns a response status code to let the user know when thier dryer has stopped moving"""
 
     @classmethod
+    @auth.login_required
     def post(cls):
         """Post for Dryer
 
@@ -80,6 +93,7 @@ class Washer(Resource):
     Returns a response status code to let the user know when thier washer has stopped moving"""
 
     @classmethod
+    @auth.login_required
     def post(cls):
         """Post for Washer
 
@@ -102,6 +116,7 @@ class Calibrate(Resource):
     Returns a response status code and JSON of the Axes model"""
 
     @classmethod
+    @auth.login_required
     def post(cls):
         """Post for Calibrate
 
@@ -129,6 +144,7 @@ class Adjust(Resource):
     Returns a response status code"""
 
     @classmethod
+    @auth.login_required
     def post(cls):
         """Post for Adjust
 
