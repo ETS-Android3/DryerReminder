@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/HomeFragment">
+
+    <fragment
+        android:id="@+id/HomeFragment"
+        android:name="com.example.myfirstapp.HomeFragment"
+        android:label="@string/first_fragment_label"
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_HomeFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
+        <action
+            android:id="@+id/action_HomeFragment_to_dryerFragment"
+            app:destination="@id/dryerFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/calibrateFragment"
+        android:name="com.example.myfirstapp.CalibrateFragment"
+        android:label="fragment_calibrate"
+        tools:layout="@layout/fragment_calibrate" >
+        <action
+            android:id="@+id/action_calibrateFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.example.myfirstapp.SettingsFragment"
+        android:label="fragment_settings"
+        tools:layout="@layout/fragment_settings" >
+        <action
+            android:id="@+id/action_settingsFragment_to_HomeFragment"
+            app:destination="@id/HomeFragment" />
+        <action
+            android:id="@+id/action_settingsFragment_to_calibrateFragment"
+            app:destination="@id/calibrateFragment" />
+        <action
+            android:id="@+id/action_settingsFragment_to_adjustFragment"
+            app:destination="@id/adjustFragment" />
+        <action
+            android:id="@+id/action_settingsFragment_to_notifyFragment"
+            app:destination="@id/notifyFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/adjustFragment"
+        android:name="com.example.myfirstapp.AdjustFragment"
+        android:label="fragment_adjust"
+        tools:layout="@layout/fragment_adjust" >
+        <action
+            android:id="@+id/action_adjustFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/notifyFragment"
+        android:name="com.example.myfirstapp.NotifyFragment"
+        android:label="fragment_notify"
+        tools:layout="@layout/fragment_notify" >
+        <action
+            android:id="@+id/action_notifyFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/dryerFragment"
+        android:name="com.example.myfirstapp.DryerFragment"
+        android:label="fragment_dryer"
+        tools:layout="@layout/fragment_dryer" >
+        <action
+            android:id="@+id/action_dryerFragment_to_HomeFragment"
+            app:destination="@id/HomeFragment" />
+    </fragment>
+</navigation>
