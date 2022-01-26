@@ -9,6 +9,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.example.myfirstapp.databinding.FragmentCalibrateBinding;
 import com.example.myfirstapp.model.ClientModel;
@@ -48,7 +49,7 @@ public class CalibrateFragment extends Fragment implements CalibrateContract.Vie
     }
 
     /**
-     *Create all the actions for the view.
+     *Create all the actions for the Calibrate view.
      *
      * @param view Creates the Calibrate user interface
      * @param savedInstanceState Holds the data for mapping values like strings
@@ -56,6 +57,7 @@ public class CalibrateFragment extends Fragment implements CalibrateContract.Vie
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        //Instantiate the presenter
         presenter = new CalibratePresenter(this);
 
         //Confirm the user wants to call the API to have the Pi Calibrate and send the data back to the phone.
@@ -63,8 +65,19 @@ public class CalibrateFragment extends Fragment implements CalibrateContract.Vie
             @Override
             public void onClick(View view) {
 
-                presenter.doCalibrate();
-
+                //If the version of Android is too old, then prevent the button from running.
+                int SDK_INT = android.os.Build.VERSION.SDK_INT;
+                if (SDK_INT > 8)
+                {
+                    //Try to connect to the device
+                    presenter.doCalibrate();
+                }
+                else
+                {
+                    //Create and show a toast that says the device's SDK is out of date
+                    Toast myToast = Toast.makeText(getActivity(), "Outdated Version. Cannot connect to device", Toast.LENGTH_LONG);
+                    myToast.show();
+                }
             }
         });
 
