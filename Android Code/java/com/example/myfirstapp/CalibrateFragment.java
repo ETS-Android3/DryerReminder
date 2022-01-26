@@ -11,16 +11,22 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.myfirstapp.databinding.FragmentCalibrateBinding;
-import com.example.myfirstapp.databinding.FragmentSettingsBinding;
+import com.example.myfirstapp.model.ClientModel;
+import com.example.myfirstapp.presenter.CalibrateContract;
+import com.example.myfirstapp.presenter.CalibratePresenter;
+
 
 /**
  * Calibrate Fragment that will allow the user to calibrate the Raspberry Pi's
  * accelerometer and save the data to the phone.
  *
  */
-public class CalibrateFragment extends Fragment {
+public class CalibrateFragment extends Fragment implements CalibrateContract.View {
 
     private FragmentCalibrateBinding binding;
+
+    //Call the presenter
+    private CalibrateContract.Presenter presenter;
 
     /**
      * Setup the Calibrate page with the layout, view, view group, etc.
@@ -50,9 +56,17 @@ public class CalibrateFragment extends Fragment {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        presenter = new CalibratePresenter(this);
+
         //Confirm the user wants to call the API to have the Pi Calibrate and send the data back to the phone.
-        binding.calibrateDeviceButton.setOnClickListener(viewConfirm -> NavHostFragment.findNavController(CalibrateFragment.this)
-                );
+        view.findViewById(R.id.calibrate_device_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                presenter.doCalibrate();
+
+            }
+        });
 
         //Navigate User to Settings Fragment by clicking the Back Button
         binding.calibrateBackButton.setOnClickListener(viewBack -> {
@@ -72,4 +86,9 @@ public class CalibrateFragment extends Fragment {
         binding = null;
     }
 
+    //Honestly, I have no fucking clue
+    @Override
+    public void showInUseError() {
+
+    }
 }
