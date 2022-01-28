@@ -1,5 +1,6 @@
 package com.example.myfirstapp;
 
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -12,9 +13,18 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.example.myfirstapp.databinding.FragmentCalibrateBinding;
+import com.example.myfirstapp.model.AxesModel;
 import com.example.myfirstapp.model.ClientModel;
 import com.example.myfirstapp.presenter.CalibrateContract;
 import com.example.myfirstapp.presenter.CalibratePresenter;
+
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 
 
 /**
@@ -69,8 +79,15 @@ public class CalibrateFragment extends Fragment implements CalibrateContract.Vie
                 int SDK_INT = android.os.Build.VERSION.SDK_INT;
                 if (SDK_INT > 8)
                 {
+
+                    AxesModel test = new AxesModel(0.0064, 0.0420, 0.0169);
+                    writeToFile(test);
+
                     //Try to connect to the device
-                    presenter.doCalibrate();
+                    //presenter.doCalibrate();
+
+
+
                 }
                 else
                 {
@@ -103,5 +120,53 @@ public class CalibrateFragment extends Fragment implements CalibrateContract.Vie
     @Override
     public void showInUseError() {
 
+    }
+
+    public void writeToFile(AxesModel savedRange)
+    {
+        try
+        {
+            System.out.println("Work--------------------------------------Bitch");
+            String filename = "myfile.txt";
+            String fileContents = (savedRange.getAxisX() + "\n" + savedRange.getAxisY() + "\n" + savedRange.getAxisZ() + "\n");
+            try (FileOutputStream fos = getContext().openFileOutput(filename, Context.MODE_PRIVATE)) {
+                fos.write(fileContents.getBytes(StandardCharsets.UTF_8));
+                fos.close();
+            }
+
+        }
+        catch(IOException e)
+        {
+            System.out.println("Oppsie Whoppsie");
+        }
+
+        //Reading the file Move to Dryer Later
+        //Converts text file numbers to axes model
+        AxesModel newRange = new AxesModel();
+
+        FileInputStream fis = null;
+        try {
+            fis = getContext().openFileInput("myfile.txt");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        InputStreamReader inputStreamReader =
+                new InputStreamReader(fis, StandardCharsets.UTF_8);
+        StringBuilder stringBuilder = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(inputStreamReader)) {
+            String line = reader.readLine();
+
+            newRange.setAxisX((Double.parseDouble(line)));
+            line = reader.readLine();
+            newRange.setAxisY((Double.parseDouble(line)));
+            line = reader.readLine();
+            newRange.setAxisZ((Double.parseDouble(line)));
+
+        } catch (IOException e) {
+            // Error occurred when opening raw file for reading.
+        } finally {
+            String contents = stringBuilder.toString();
+            System.out.println(newRange.getAxisX() + " " + newRange.getAxisY() + " " + newRange.getAxisZ());
+        }
     }
 }

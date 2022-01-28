@@ -1,12 +1,18 @@
 package com.example.myfirstapp.presenter;
 
+import android.content.Context;
 import android.os.StrictMode;
 import android.widget.Toast;
 
 import com.example.myfirstapp.model.AxesModel;
 import com.example.myfirstapp.model.ClientModel;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.FormBody;
@@ -16,18 +22,20 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 
+
 /**
  * Presenter for the Calibrate Fragment class. Acts like a controller to the Fragment's View.
  * Calls the API from the Raspberry Pi to get calibration data from the accelerometer.
  */
 public class CalibratePresenter implements CalibrateContract.Presenter {
     public CalibrateContract.View view;
-    private AxesModel savedAxes;
+    private AxesModel savedAxes = new AxesModel();
 
     //No idea might delete
     public CalibratePresenter(CalibrateContract.View view)
     {
         this.view = view;
+
     }
 
     /**
@@ -73,14 +81,37 @@ public class CalibratePresenter implements CalibrateContract.Presenter {
         try {
             System.out.println("START OF END--------------------------------------");
             Response response = client.newCall(postRequest).execute();
-            System.out.println(response.body().string());
+
+            String jsonString = response.body().string();
+            System.out.println(jsonString);
+
+            //Json to AxesModel
+            JSONObject json = new JSONObject(jsonString);
+
+            //Convert JSON Object to the AxesModel
+            savedAxes = new AxesModel(json.getDouble("axisX"), json.getDouble("axisY"), json.getDouble("axisZ"));
+
+            //Print
+            System.out.println("\nAxisX: " + savedAxes.getAxisX() + "\nAxisY: " + savedAxes.getAxisY() + "\nAxisZ: " + savedAxes.getAxisZ());
+
+            writeToFile();
+
+
 
             System.out.println("END OF THE CLICK--------------------------------------");
-        } catch (IOException e) {
+        } catch (IOException | JSONException e) {
             System.out.println("Start OF THE CLICK BAD---------------------------------");
             e.printStackTrace();
 
         }
+
+    }
+
+    private void writeToFile()
+    {
+
+
+
 
     }
 
