@@ -1,15 +1,18 @@
 package com.example.myfirstapp;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.example.myfirstapp.databinding.FragmentCalibrateBinding;
@@ -35,6 +38,7 @@ import java.nio.charset.StandardCharsets;
 public class CalibrateFragment extends Fragment implements CalibrateContract.View {
 
     private FragmentCalibrateBinding binding;
+    boolean isBusy;
 
     //Call the presenter
     private CalibrateContract.Presenter presenter;
@@ -50,11 +54,14 @@ public class CalibrateFragment extends Fragment implements CalibrateContract.Vie
     @Override
     public View onCreateView(
             @NonNull LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState
-    ) {
+            Bundle savedInstanceState)
+    {
 
+
+        isBusy = false;
         binding = FragmentCalibrateBinding.inflate(inflater, container, false);
         return binding.getRoot();
+
 
     }
 
@@ -70,103 +77,160 @@ public class CalibrateFragment extends Fragment implements CalibrateContract.Vie
         //Instantiate the presenter
         presenter = new CalibratePresenter(this);
 
+        Button calibrateButton = view.findViewById(R.id.calibrate_device_button);
+        Button backButton = view.findViewById(R.id.calibrate_back_button);
+
         //Confirm the user wants to call the API to have the Pi Calibrate and send the data back to the phone.
-        view.findViewById(R.id.calibrate_device_button).setOnClickListener(new View.OnClickListener() {
+        calibrateButton.setOnClickListener(new View.OnClickListener()
+        {
+
+
             @Override
-            public void onClick(View view) {
+            public void onClick(View view)
+            {
 
-                //If the version of Android is too old, then prevent the button from running.
-                int SDK_INT = android.os.Build.VERSION.SDK_INT;
-                if (SDK_INT > 8)
-                {
+                //calibrateButton.setVisibility(View.INVISIBLE);
+               // backButton.setEnabled(false);
 
-                    AxesModel test = new AxesModel(0.0064, 0.0420, 0.0169);
-                    writeToFile(test);
+                //Checks to see if device is busy. If not then set to true until method is finished.
 
-                    //Try to connect to the device
-                    //presenter.doCalibrate();
+                    //Attempt to connect to pi and save information to text file.
+                    try
+                    {
+
+                    //If the version of Android is too old, then prevent the button from running.
+                    int SDK_INT = android.os.Build.VERSION.SDK_INT;
+                    if (SDK_INT > 8)
+                    {
+                        System.out.println("----------------------------Start");
+                        //Call the presenter to open a connection the pi
+
+                        presenter.doCalibrate();
 
 
-
-                }
-                else
-                {
+                        System.out.println("----------------------------END");
+                    }
+                    else
+                    {
                     //Create and show a toast that says the device's SDK is out of date
                     Toast myToast = Toast.makeText(getActivity(), "Outdated Version. Cannot connect to device", Toast.LENGTH_LONG);
                     myToast.show();
+                    }
+                } catch (Exception e)
+                {
+                    System.out.println(e);
+                } finally //Make sure device is freed, even after an error
+                {
+
+                    System.out.println("Button finished");
+
                 }
+
+
             }
         });
 
         //Navigate User to Settings Fragment by clicking the Back Button
-        binding.calibrateBackButton.setOnClickListener(viewBack -> {
-            //Specify the navigation action
-            NavHostFragment.findNavController(CalibrateFragment.this)
-                    .navigate(R.id.action_calibrateFragment_to_settingsFragment);
-        });
+        backButton.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick (View view)
+            {
+                NavHostFragment.findNavController(CalibrateFragment.this).navigate(CalibrateFragmentDirections.actionCalibrateFragmentToSettingsFragment());
 
+            }
+        });
     }
 
     /**
      * Destroys the view by setting the binding to null.
      */
     @Override
-    public void onDestroyView() {
+    public void onDestroyView()
+    {
         super.onDestroyView();
         binding = null;
     }
 
-    //Honestly, I have no fucking clue
-    @Override
-    public void showInUseError() {
 
+    /**
+     * Show error that device is already in use.
+     */
+    @Override
+    public void showInUseError()
+    {
+        //Make toast to tell user device is in use.
+        Toast myToast = Toast.makeText(getActivity(), "Device already in use.", Toast.LENGTH_LONG);
+        myToast.show();
     }
 
+    /**
+     * Take Calibrated range from the Raspberry Pi and save it to a text file to use it later.
+     *
+     * @param savedRange Save range that was calibrated from pi
+     *
+     */
+    @Override
     public void writeToFile(AxesModel savedRange)
     {
+        //Try to write to a text file
         try
         {
-            System.out.println("Work--------------------------------------Bitch");
-            String filename = "myfile.txt";
+            //Write saved range to config Calibrate text file
+            String filename = "configCalibrate.txt";
             String fileContents = (savedRange.getAxisX() + "\n" + savedRange.getAxisY() + "\n" + savedRange.getAxisZ() + "\n");
-            try (FileOutputStream fos = getContext().openFileOutput(filename, Context.MODE_PRIVATE)) {
-                fos.write(fileContents.getBytes(StandardCharsets.UTF_8));
-                fos.close();
+
+            try (FileOutputStream fileOutput = getContext().openFileOutput(filename, Context.MODE_PRIVATE))
+            {
+                fileOutput.write(fileContents.getBytes(StandardCharsets.UTF_8));
             }
 
         }
         catch(IOException e)
         {
-            System.out.println("Oppsie Whoppsie");
+            System.out.println(e);
         }
 
         //Reading the file Move to Dryer Later
         //Converts text file numbers to axes model
         AxesModel newRange = new AxesModel();
 
-        FileInputStream fis = null;
-        try {
-            fis = getContext().openFileInput("myfile.txt");
-        } catch (FileNotFoundException e) {
+        //Create the file input stream
+        FileInputStream fileInput = null;
+
+        //Try to find text file
+        try
+        {
+            fileInput = getContext().openFileInput("configCalibrate.txt"); //Use context to read from text file
+        }
+        catch (FileNotFoundException e)
+        {
             e.printStackTrace();
         }
-        InputStreamReader inputStreamReader =
-                new InputStreamReader(fis, StandardCharsets.UTF_8);
+
+        //Take the text file and try to convert it to an AxesModel
+        InputStreamReader inputStreamReader = new InputStreamReader(fileInput, StandardCharsets.UTF_8);
         StringBuilder stringBuilder = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(inputStreamReader)) {
+        try (BufferedReader reader = new BufferedReader(inputStreamReader))
+        {
             String line = reader.readLine();
 
+            //Convert the range to an axesModel
             newRange.setAxisX((Double.parseDouble(line)));
             line = reader.readLine();
             newRange.setAxisY((Double.parseDouble(line)));
             line = reader.readLine();
             newRange.setAxisZ((Double.parseDouble(line)));
 
-        } catch (IOException e) {
-            // Error occurred when opening raw file for reading.
-        } finally {
             String contents = stringBuilder.toString();
             System.out.println(newRange.getAxisX() + " " + newRange.getAxisY() + " " + newRange.getAxisZ());
         }
+        catch (IOException e)
+        {
+            System.out.println(e);
+        }
+
     }
+
+
 }
