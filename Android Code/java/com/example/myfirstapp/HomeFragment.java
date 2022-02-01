@@ -27,40 +27,50 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 
-public class HomeFragment extends Fragment {
+public class HomeFragment extends Fragment
+{
 
+    //Variables
     private FragmentHomeBinding binding;
-
-
     private NotificationManagerCompat notificationManager;
 
     TextView showCountTextView;
 
 
-
+    /**
+     * Setup the Home page with the layout, view, view group, etc.
+     *
+     * @param inflater converts the XML file into a view
+     * @param container Creates the layout design for the view and View Group
+     * @param savedInstanceState Holds the data for mapping values like strings
+     * @return binding Binding class used with the Home XML file
+     */
     @Override
     public View onCreateView(
             LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState
-    ) {
+            Bundle savedInstanceState)
+    {
         // Inflate the layout for this fragment
         View fragmentFirstLayout = inflater.inflate(R.layout.fragment_home, container, false);
-        // Get the count text view
-        showCountTextView = fragmentFirstLayout.findViewById(R.id.textview_first);
 
 
-        //Notification
-        notificationManager = NotificationManagerCompat.from(getActivity());
 
         return fragmentFirstLayout;
     }
 
 
-    //I think when teh view is created this is made. Put most functions here
-    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+    /**
+     * Create all the actions for the view.
+     *
+     * @param view Creates the Notify user interface
+     * @param savedInstanceState Holds the data for mapping values like strings
+     */
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState)
+    {
         super.onViewCreated(view, savedInstanceState);
 
-        view.findViewById(R.id.settings_button).setOnClickListener(new View.OnClickListener() {
+        view.findViewById(R.id.settings_button).setOnClickListener(new View.OnClickListener()
+        {
             @Override
             public void onClick(View view) {
                 NavHostFragment.findNavController(HomeFragment.this)
@@ -69,7 +79,8 @@ public class HomeFragment extends Fragment {
         });
 
 
-        view.findViewById(R.id.dryer_button).setOnClickListener(new View.OnClickListener() {
+        view.findViewById(R.id.dryer_button).setOnClickListener(new View.OnClickListener()
+        {
             @Override
             public void onClick(View view) {
                 NavHostFragment.findNavController(HomeFragment.this)
@@ -80,34 +91,14 @@ public class HomeFragment extends Fragment {
 
     }
 
+    /**
+     * Destroys the view by setting the binding to null.
+     */
     @Override
-    public void onDestroyView() {
+    public void onDestroyView()
+    {
         super.onDestroyView();
         binding = null;
     }
 
-    private void countMe(View view) {
-        String countString = showCountTextView.getText().toString();
-
-        Integer count = Integer.parseInt(countString);
-        count++;
-
-        showCountTextView.setText(count.toString());
-    }
-
-
-    public void sendOnChannel1(View v)
-    {
-        String title = "Dryer Reminder";
-        String message = "Your Dryer has finished!";
-        Notification notification = new NotificationCompat.Builder(getActivity(), CHANNEL_1_ID)
-                .setSmallIcon(R.drawable.ic_one)
-                .setContentTitle(title)
-                .setContentText(message)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setCategory(NotificationCompat.CATEGORY_MESSAGE)
-                .build();
-
-        notificationManager.notify(1, notification);
-    }
 }

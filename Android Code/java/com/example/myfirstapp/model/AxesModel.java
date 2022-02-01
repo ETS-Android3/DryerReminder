@@ -1,6 +1,11 @@
 package com.example.myfirstapp.model;
 
-public class AxesModel {
+/**
+ *  Model that represents the x, y, z axis that will be read or calculated from an accelerometer.
+ *
+ */
+public class AxesModel
+{
 
     //Variables
     private double axisX;
@@ -13,6 +18,14 @@ public class AxesModel {
         this.axisX = axisX;
         this.axisY = axisY;
         this.axisZ = axisZ;
+    }
+
+    //Default Constructor
+    public AxesModel()
+    {
+        axisX = 0;
+        axisY = 0;
+        axisZ = 0;
     }
 
     //Getters and Setters

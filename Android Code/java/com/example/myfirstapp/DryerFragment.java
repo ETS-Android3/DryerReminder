@@ -50,8 +50,8 @@ public class DryerFragment extends Fragment {
     @Override
     public View onCreateView(
             @NonNull LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState
-    ) {
+            Bundle savedInstanceState)
+    {
 
         binding = FragmentDryerBinding.inflate(inflater, container, false);
         return binding.getRoot();
@@ -64,7 +64,8 @@ public class DryerFragment extends Fragment {
      * @param view Creates the Dryer user interface
      * @param savedInstanceState Holds the data for mapping values like strings
      */
-    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState)
+    {
         super.onViewCreated(view, savedInstanceState);
 
         //Click Listener for Count
@@ -116,7 +117,8 @@ public class DryerFragment extends Fragment {
         });
 
         //Navigate User to Setting Fragment by clicking the Back Button
-        binding.dryerBackButton.setOnClickListener(viewBack -> {
+        binding.dryerBackButton.setOnClickListener(viewBack ->
+        {
             //Specify the navigation action
             NavHostFragment.findNavController(DryerFragment.this)
                     .navigate(R.id.action_dryerFragment_to_HomeFragment);
@@ -128,11 +130,16 @@ public class DryerFragment extends Fragment {
      * Destroys the view by setting the binding to null.
      */
     @Override
-    public void onDestroyView() {
+    public void onDestroyView()
+    {
         super.onDestroyView();
         binding = null;
     }
 
+    /**
+     * Will be used to send notification when fully implemented Currently left behidn from prototype.
+     * @param v
+     */
     public void sendOnChannel1(View v)
     {
         String title = "Dryer Reminder";

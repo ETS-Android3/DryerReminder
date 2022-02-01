@@ -17,7 +17,8 @@ import com.example.myfirstapp.databinding.FragmentSettingsBinding;
  * handle changing settings on the Raspberry Pi or Phone app.
  *
  */
-public class SettingsFragment extends Fragment {
+public class SettingsFragment extends Fragment
+{
 
     private FragmentSettingsBinding binding;
 
@@ -32,8 +33,8 @@ public class SettingsFragment extends Fragment {
     @Override
     public View onCreateView(
             @NonNull LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState
-    ) {
+            Bundle savedInstanceState)
+    {
 
         binding = FragmentSettingsBinding.inflate(inflater, container, false);
         return binding.getRoot();
@@ -46,7 +47,8 @@ public class SettingsFragment extends Fragment {
      * @param view Creates the Settings user interface
      * @param savedInstanceState Holds the data for mapping values like strings
      */
-    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState)
+    {
         super.onViewCreated(view, savedInstanceState);
 
         //Navigate User to Adjust Fragment by clicking the Adjust Button
@@ -54,14 +56,16 @@ public class SettingsFragment extends Fragment {
                 .navigate(R.id.action_settingsFragment_to_adjustFragment));
 
         //Navigate User to Calibrate Fragment by clicking the Calibrate Button
-        binding.calibrateButton.setOnClickListener(viewCalibrate -> {
+        binding.calibrateButton.setOnClickListener(viewCalibrate ->
+        {
             //Specify the navigation action
             NavHostFragment.findNavController(SettingsFragment.this)
                     .navigate(R.id.action_settingsFragment_to_calibrateFragment);
         });
 
         //Navigate User to Notify Fragment by clicking the calibrate Button
-        binding.notificationButton.setOnClickListener(viewNotify -> {
+        binding.notificationButton.setOnClickListener(viewNotify ->
+        {
 
             //Specify the navigation action
             NavHostFragment.findNavController(SettingsFragment.this)
@@ -69,7 +73,8 @@ public class SettingsFragment extends Fragment {
         });
 
         //Navigate User to Home Fragment by clicking the Back Button
-        binding.settingsBackButton.setOnClickListener(viewBack -> {
+        binding.settingsBackButton.setOnClickListener(viewBack ->
+        {
             //Specify the navigation action
             NavHostFragment.findNavController(SettingsFragment.this)
                     .navigate(R.id.action_settingsFragment_to_HomeFragment);
@@ -81,7 +86,8 @@ public class SettingsFragment extends Fragment {
      * Destroys the view by setting the binding to null.
      */
     @Override
-    public void onDestroyView() {
+    public void onDestroyView()
+    {
         super.onDestroyView();
         binding = null;
     }

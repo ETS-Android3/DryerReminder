@@ -1,11 +1,16 @@
 package com.example.myfirstapp.model;
 
+/**
+ * Model that holds the data needed to connect to the Raspberry Pi.
+ * Convenient for changing things like the IP throughout the entire app.
+ *
+ */
 public class ClientModel
 {
     //Variables
     private String ipAddress;
     private String port;
-    private String token;
+    private String token; //Security Token needed to access API
 
     //Constructor
     public ClientModel(String ipAddress, String port, String token) {
@@ -14,9 +19,9 @@ public class ClientModel
         this.token = token;
     }
 
-    //Constructor
+    //Default Constructor
     public ClientModel() {
-        ipAddress ="192.168.0.23";
+        ipAddress = "192.168.0.23";
         port = "7069";
         token = "justUseATimer";
     }

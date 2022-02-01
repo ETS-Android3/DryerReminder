@@ -18,7 +18,8 @@ import com.example.myfirstapp.databinding.FragmentAdjustBinding;
  * uses to determine if the detection needs to be more or less sensitive.
  *
  */
-public class AdjustFragment extends Fragment {
+public class AdjustFragment extends Fragment
+{
 
     private FragmentAdjustBinding binding;
 
@@ -33,8 +34,8 @@ public class AdjustFragment extends Fragment {
     @Override
     public View onCreateView(
             @NonNull LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState
-    ) {
+            Bundle savedInstanceState)
+    {
 
         binding = FragmentAdjustBinding.inflate(inflater, container, false);
         return binding.getRoot();
@@ -47,7 +48,8 @@ public class AdjustFragment extends Fragment {
      * @param view               Creates the Adjust user interface
      * @param savedInstanceState Holds the data for mapping values like strings
      */
-    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState)
+    {
         super.onViewCreated(view, savedInstanceState);
 
         //Confirm the Adjust number and call the API to save it to the Pi.
@@ -67,7 +69,8 @@ public class AdjustFragment extends Fragment {
      * Destroys the view by setting the binding to null.
      */
     @Override
-    public void onDestroyView() {
+    public void onDestroyView()
+    {
         super.onDestroyView();
         binding = null;
     }

@@ -9,22 +9,32 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+/**
+ * Main Application and settings used throughout the entire app
+ */
 public class app extends Application
 {
+    //Varaibles used to setup notification
     public static final String CHANNEL_1_ID = "channel1";
     public static final String CHANNEL_2_ID = "channel2";
 
 
+    /**
+     * Setup used when application in created
+     */
     @Override
     public void onCreate()
     {
         super.onCreate();
 
+        //Used for Notifications
         createNotificationChannels();
     }
 
 
-
+    /**
+     * Create the notifications that will be used when the dryer is finished.
+     */
     private void createNotificationChannels()
     {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)

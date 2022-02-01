@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.myfirstapp.databinding.FragmentCalibrateBinding;
@@ -35,10 +36,12 @@ import java.nio.charset.StandardCharsets;
  * accelerometer and save the data to the phone.
  *
  */
-public class CalibrateFragment extends Fragment implements CalibrateContract.View {
-
+public class CalibrateFragment extends Fragment implements CalibrateContract.View
+{
+    //Variables
     private FragmentCalibrateBinding binding;
-    boolean isBusy;
+    TextView showBasicText;
+    boolean isBusy; //Will use this in the feature to keep the user form pressing buttons
 
     //Call the presenter
     private CalibrateContract.Presenter presenter;
@@ -59,7 +62,12 @@ public class CalibrateFragment extends Fragment implements CalibrateContract.Vie
 
 
         isBusy = false;
+
+
         binding = FragmentCalibrateBinding.inflate(inflater, container, false);
+
+        showBasicText = binding.getRoot().findViewById(R.id.calibrate_text_view1);
+
         return binding.getRoot();
 
 
@@ -71,7 +79,8 @@ public class CalibrateFragment extends Fragment implements CalibrateContract.Vie
      * @param view Creates the Calibrate user interface
      * @param savedInstanceState Holds the data for mapping values like strings
      */
-    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState)
+    {
         super.onViewCreated(view, savedInstanceState);
 
         //Instantiate the presenter
@@ -105,8 +114,19 @@ public class CalibrateFragment extends Fragment implements CalibrateContract.Vie
                         System.out.println("----------------------------Start");
                         //Call the presenter to open a connection the pi
 
-                        presenter.doCalibrate();
+                        //Run calibrate and save number. Anything other then 0 is an error
+                        int errorNumber = presenter.doCalibrate();
 
+                        //Change text base
+                        if (errorNumber == 0)
+                        {
+                            showBasicText.setText("Calibration has finished");
+
+                        }
+                        else
+                        {
+                            showBasicText.setText("Calibration Failed. Make sure device is on.");
+                        }
 
                         System.out.println("----------------------------END");
                     }
@@ -116,14 +136,15 @@ public class CalibrateFragment extends Fragment implements CalibrateContract.Vie
                     Toast myToast = Toast.makeText(getActivity(), "Outdated Version. Cannot connect to device", Toast.LENGTH_LONG);
                     myToast.show();
                     }
-                } catch (Exception e)
+                }
+                catch (Exception e)
                 {
                     System.out.println(e);
-                } finally //Make sure device is freed, even after an error
+                    showBasicText.setText("Calibration Failed. Make sure device is on in.");
+                }
+                finally //Make sure device is freed, even after an error
                 {
-
                     System.out.println("Button finished");
-
                 }
 
 
@@ -164,15 +185,17 @@ public class CalibrateFragment extends Fragment implements CalibrateContract.Vie
         myToast.show();
     }
 
+
     /**
      * Take Calibrated range from the Raspberry Pi and save it to a text file to use it later.
-     *
+     * Currently reads the same text file to show it has been created. That will be moved to Dryer Fragment later
      * @param savedRange Save range that was calibrated from pi
      *
      */
     @Override
     public void writeToFile(AxesModel savedRange)
     {
+        System.out.println("Write to File-----------------------");
         //Try to write to a text file
         try
         {
@@ -223,7 +246,7 @@ public class CalibrateFragment extends Fragment implements CalibrateContract.Vie
             newRange.setAxisZ((Double.parseDouble(line)));
 
             String contents = stringBuilder.toString();
-            System.out.println(newRange.getAxisX() + " " + newRange.getAxisY() + " " + newRange.getAxisZ());
+            System.out.println("File Found:" + newRange.getAxisX() + " " + newRange.getAxisY() + " " + newRange.getAxisZ());
         }
         catch (IOException e)
         {

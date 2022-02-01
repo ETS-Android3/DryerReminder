@@ -27,11 +27,18 @@ import okhttp3.Response;
  * Presenter for the Calibrate Fragment class. Acts like a controller to the Fragment's View.
  * Calls the API from the Raspberry Pi to get calibration data from the accelerometer.
  */
-public class CalibratePresenter implements CalibrateContract.Presenter {
+public class CalibratePresenter implements CalibrateContract.Presenter
+{
+    //Variables
     public CalibrateContract.View view;
     private AxesModel savedAxes = new AxesModel();
 
-    //No idea might delete
+    /**
+     * Allows the view to be called in the presenter.
+     * To call methods in the fragment that need context
+     *
+     * @param view Calibrate Fragment
+     */
     public CalibratePresenter(CalibrateContract.View view)
     {
         this.view = view;
@@ -39,21 +46,34 @@ public class CalibratePresenter implements CalibrateContract.Presenter {
     }
 
     /**
-     * Void method that calls the Calibrate API on the Pi and receive a JSON of the AxesModel.
-     * The Model will then be saved to the phone using a text file or something similar.
+     * Method that calls another method to call the API. Currently
+     * separated because the piCall will likely be moved to background tasks.
      *
      */
-    public void doCalibrate()
+    public int doCalibrate()
+    {
+        System.out.println("Presenter works");
+
+        return piCall();
+
+
+    }
+
+    /**
+     * Void method that calls the Calibrate API on the Pi and receive a JSON of the AxesModel.
+     *
+     */
+    private int piCall()
     {
         //Model that holds the information to pull data from the Client.
         ClientModel piModel = new ClientModel();
 
-
+        //Needed to call the Pi
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
                 .permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
-        //Above needed for get to work
+
         System.out.println("START OF THE CLICK--------------------------------------");
 
         //Setup OkHttpClient
@@ -80,39 +100,36 @@ public class CalibratePresenter implements CalibrateContract.Presenter {
                 .build();
         try {
             System.out.println("START OF END--------------------------------------");
+
+            //Execute call.
             Response response = client.newCall(postRequest).execute();
 
+            //Take the response and save it to a string.
             String jsonString = response.body().string();
-            System.out.println(jsonString);
+            //System.out.println(jsonString);
 
-            //Json to AxesModel
+            //Convert the string to a JSON
             JSONObject json = new JSONObject(jsonString);
 
             //Convert JSON Object to the AxesModel
             savedAxes = new AxesModel(json.getDouble("axisX"), json.getDouble("axisY"), json.getDouble("axisZ"));
 
-            //Print
-            System.out.println("\nAxisX: " + savedAxes.getAxisX() + "\nAxisY: " + savedAxes.getAxisY() + "\nAxisZ: " + savedAxes.getAxisZ());
-
-            writeToFile();
-
+            //Call the view to save the axes to a text file.
+            view.writeToFile(savedAxes);
 
 
             System.out.println("END OF THE CLICK--------------------------------------");
-        } catch (IOException | JSONException e) {
-            System.out.println("Start OF THE CLICK BAD---------------------------------");
+            return 0;
+        }
+        catch (IOException | JSONException e)
+        {
+            System.out.println("Bad CLICK---------------------------------");
             e.printStackTrace();
+            return 1;
 
         }
-
     }
 
-    private void writeToFile()
-    {
 
-
-
-
-    }
 
 }
