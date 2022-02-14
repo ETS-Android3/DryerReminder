@@ -4,7 +4,6 @@ import android.content.Context;
 import android.os.StrictMode;
 
 import androidx.annotation.NonNull;
-import androidx.work.Data;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
@@ -94,7 +93,8 @@ public class ClientWorker extends Worker
                 .addHeader("cache-control", "no-cache")
                 .addHeader("Authorization", "Bearer " + piModel.getToken()) //Security Token
                 .build();
-        try {
+        try
+        {
             System.out.println("START OF END--------------------------------------");
 
             //Execute call.
@@ -122,7 +122,6 @@ public class ClientWorker extends Worker
             System.out.println("Bad CLICK---------------------------------");
             e.printStackTrace();
             return 1;
-
         }
     }
 

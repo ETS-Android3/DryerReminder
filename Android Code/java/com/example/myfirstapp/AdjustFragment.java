@@ -9,8 +9,11 @@ import androidx.navigation.fragment.NavHostFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.SeekBar;
+import android.widget.TextView;
 
 import com.example.myfirstapp.databinding.FragmentAdjustBinding;
+
 
 
 /**
@@ -22,6 +25,9 @@ public class AdjustFragment extends Fragment
 {
 
     private FragmentAdjustBinding binding;
+    SeekBar adjustSeekBar;
+    TextView adjustText;
+    int adjustNumber;
 
     /**
      * Setup the Adjust page with the layout, view, view group, etc.
@@ -38,6 +44,9 @@ public class AdjustFragment extends Fragment
     {
 
         binding = FragmentAdjustBinding.inflate(inflater, container, false);
+        adjustSeekBar = binding.getRoot().findViewById(R.id.seekBar);
+        adjustText = binding.getRoot().findViewById(R.id.adjustNumber);
+        adjustNumber = 0;
         return binding.getRoot();
 
     }
@@ -63,6 +72,49 @@ public class AdjustFragment extends Fragment
                     .navigate(R.id.action_adjustFragment_to_settingsFragment);
         });
 
+        //Listener for when seek bar moves
+        adjustSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser)
+            {
+                //Add one to the progress since it starts at 0.
+                adjustNumber = progress + 1;
+
+                //Based on the bars position, tell the user how sensitive the device will be
+                if(adjustNumber == 1)
+                {
+                    adjustText.setText("Not Sensitive");
+                }
+                else if(adjustNumber == 2)
+                {
+                    adjustText.setText("Below Average Sensitivity");
+                }
+                else if(adjustNumber == 3)
+                {
+                    adjustText.setText("Average Sensitivity");
+                }
+                else if(adjustNumber == 4)
+                {
+                    adjustText.setText("Above Average Sensitivity");
+                }
+                else if(adjustNumber == 5)
+                {
+                    adjustText.setText("Extremely Sensitive");
+                }
+                else
+                {
+                    adjustText.setText("How?");
+                }
+            }
+
+            //Needed for listener, but not implemented.
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar)
+            { }
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar)
+            { }
+        });
     }
 
     /**

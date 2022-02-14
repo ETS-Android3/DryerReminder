@@ -2,22 +2,6 @@ package com.example.myfirstapp;
 
 
 import android.os.Bundle;
-
-
-import androidx.annotation.NonNull;
-
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.LiveData;
-
-import androidx.navigation.fragment.NavHostFragment;
-
-import androidx.work.ExistingWorkPolicy;
-
-import androidx.work.OneTimeWorkRequest;
-import androidx.work.WorkContinuation;
-import androidx.work.WorkInfo;
-import androidx.work.WorkManager;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,15 +9,21 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
+import androidx.navigation.fragment.NavHostFragment;
+import androidx.work.ExistingWorkPolicy;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkContinuation;
+import androidx.work.WorkInfo;
+import androidx.work.WorkManager;
+
 import com.example.myfirstapp.background.ClientWorker;
 import com.example.myfirstapp.databinding.FragmentCalibrateBinding;
-
 import com.example.myfirstapp.presenter.CalibrateContract;
-import com.example.myfirstapp.presenter.CalibratePresenter;
-
 
 import java.util.List;
-
 
 
 /**
