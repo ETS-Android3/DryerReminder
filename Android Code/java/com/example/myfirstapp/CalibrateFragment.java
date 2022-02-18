@@ -23,8 +23,6 @@ import com.example.myfirstapp.background.CalibrateWorker;
 import com.example.myfirstapp.databinding.FragmentCalibrateBinding;
 import com.example.myfirstapp.presenter.CalibrateContract;
 
-import org.w3c.dom.Text;
-
 import java.util.List;
 
 
@@ -35,16 +33,13 @@ import java.util.List;
  */
 public class CalibrateFragment extends Fragment implements CalibrateContract.View
 {
-    //Variables
+    //Variables based on front-end items
     private FragmentCalibrateBinding binding;
-    TextView showBasicText;
-    Button calibrateButton;
-    Button backButton;
+    private TextView showBasicText;
+    private Button calibrateButton;
+    private Button backButton;
 
-    //Call the presenter
-    private CalibrateContract.Presenter presenter;
-
-    //Call Worker
+    //Call Worker and Live Data with Worker Info
     private WorkManager myClientManager;
     private LiveData<List<WorkInfo>> mySavedWorkerInfo;
 
@@ -67,14 +62,14 @@ public class CalibrateFragment extends Fragment implements CalibrateContract.Vie
         //Set to true when user first comes to page
         firstCall = true;
 
-        //Initialize WorkerManager and WorkerInfo
+        //Initialize WorkerManager and WorkerInfo with tag Calibrate
         myClientManager = WorkManager.getInstance(getActivity().getApplicationContext());
         mySavedWorkerInfo = myClientManager.getWorkInfosByTagLiveData("Calibrate");
 
 
 
 
-        //Binding Fragment
+        //Binding Fragment for front end items
         binding = FragmentCalibrateBinding.inflate(inflater, container, false);
         showBasicText = binding.getRoot().findViewById(R.id.calibrate_text_view1);
         return binding.getRoot();
@@ -92,10 +87,11 @@ public class CalibrateFragment extends Fragment implements CalibrateContract.Vie
     {
         super.onViewCreated(view, savedInstanceState);
 
+        //Initialize calibrate and back button
         calibrateButton = view.findViewById(R.id.calibrate_device_button);
         backButton = view.findViewById(R.id.calibrate_back_button);
 
-        //Confirm the user wants to call the API to have the Pi Calibrate and send the data back to the phone.
+        //Listens for a button click for the calibrate button
         calibrateButton.setOnClickListener(new View.OnClickListener()
         {
 
@@ -106,7 +102,7 @@ public class CalibrateFragment extends Fragment implements CalibrateContract.Vie
                 //Set to false so device can show in progress to user
                 firstCall = false;
 
-                //Attempt to connect to pi and save information to text file.
+                //Attempt to connect to pi through the Work Manager
                 try
                 {
 
@@ -117,12 +113,13 @@ public class CalibrateFragment extends Fragment implements CalibrateContract.Vie
                         System.out.println("----------------------------Start");
 
 
+                        //Setup work request using the calibrate worker and tag it under calibrate.
                         OneTimeWorkRequest calibrateWorker = new OneTimeWorkRequest.Builder(CalibrateWorker.class)
                                 .addTag("Calibrate")
                                 .build();
 
-                        WorkContinuation start = myClientManager.beginUniqueWork("stuff", ExistingWorkPolicy.KEEP, calibrateWorker);
-
+                        //Start the calibrate background task
+                        WorkContinuation start = myClientManager.beginUniqueWork("CalibrateDevice", ExistingWorkPolicy.KEEP, calibrateWorker);
                         start.enqueue();
 
 
@@ -131,20 +128,19 @@ public class CalibrateFragment extends Fragment implements CalibrateContract.Vie
                     }
                     else
                     {
-                    //Create and show a toast that says the device's SDK is out of date
-                    Toast myToast = Toast.makeText(getActivity(), "Outdated Version. Cannot connect to device", Toast.LENGTH_LONG);
-                    myToast.show();
+                        //Create and show a toast that says the device's SDK is out of date
+                        Toast myToast = Toast.makeText(getActivity(), "Outdated Version. Cannot connect to device", Toast.LENGTH_LONG);
+                        myToast.show();
                     }
                 }
                 catch (Exception e)
                 {
+                    //If exception is caught show failure to user
                     System.out.println(e);
-                    showBasicText.setText("Calibration Failed. Make sure device is on in.");
+                    showFailure();
                 }
-                finally //Make sure device is freed, even after an error
-                {
-                    System.out.println("Button finished");
-                }
+
+                //Write log here that button finished clicking
 
 
             }
@@ -162,8 +158,9 @@ public class CalibrateFragment extends Fragment implements CalibrateContract.Vie
         });
 
 
-        //Will show the status when the background task is called
-        mySavedWorkerInfo.observe(getViewLifecycleOwner(), listOfWorkInfos -> {
+        //Listen to the LiveData to determine the status of the background task
+        mySavedWorkerInfo.observe(getViewLifecycleOwner(), listOfWorkInfos ->
+        {
 
             //If work is null or empty then do nothing.
             if (listOfWorkInfos == null || listOfWorkInfos.isEmpty())
@@ -174,7 +171,7 @@ public class CalibrateFragment extends Fragment implements CalibrateContract.Vie
             //The Tagged LiveData will get called here
             WorkInfo workInfo = listOfWorkInfos.get(0);
 
-            //LiveData persists after first called. This keeps it from updating until getting called first.
+            //LiveData persists after it is first updated. This keeps it from updating until getting called first.
             if (!firstCall)
             {
                 //Check if background task is finished.
@@ -188,8 +185,7 @@ public class CalibrateFragment extends Fragment implements CalibrateContract.Vie
                 }
                 else
                 {
-
-                    //Pull number from clients output
+                    //Pull number from clients output to check for errors
                     int errorNumber = workInfo.getOutputData().getInt("calibrateOutput", 3);
                     System.out.println(errorNumber);
 
@@ -197,6 +193,7 @@ public class CalibrateFragment extends Fragment implements CalibrateContract.Vie
                     {
                         //Change text and buttons to show calibrate has finished.
                         showFinishedProgress();
+
                     }
                     else if (errorNumber == 1)
                     {
@@ -205,14 +202,11 @@ public class CalibrateFragment extends Fragment implements CalibrateContract.Vie
                         showFailure();
 
                     }
-
                 }
 
                 //Clear work info list to reset data if button is pressed again
                 listOfWorkInfos.clear();
             }
-
-
         });
     }
 
