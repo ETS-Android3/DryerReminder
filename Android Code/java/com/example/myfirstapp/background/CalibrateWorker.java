@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.StrictMode;
 
 import androidx.annotation.NonNull;
+import androidx.work.Data;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
@@ -47,13 +48,22 @@ public class CalibrateWorker extends Worker
     public Result doWork()
     {
 
-        if (connectToClient() == 0)
+        //Call connect to client
+        int errorNumber = connectToClient();
+        System.out.println("Work Error Number: " + errorNumber);
+
+        Data calibrateOutput = new Data.Builder()
+                .putInt("calibrateOutput", errorNumber)
+                .build();
+
+
+        if (errorNumber == 0)
         {
-            return Result.success();
+            return Result.success(calibrateOutput);
         }
         else
         {
-            return Result.failure();
+            return Result.failure(calibrateOutput);
         }
 
     }
@@ -110,6 +120,7 @@ public class CalibrateWorker extends Worker
 
             //Convert JSON Object to the AxesModel
             savedAxes = new AxesModel(json.getDouble("axisX"), json.getDouble("axisY"), json.getDouble("axisZ"));
+
 
             //Call the view to save the axes to a text file.
             writeToFile(savedAxes);
@@ -190,6 +201,7 @@ public class CalibrateWorker extends Worker
         catch (IOException e)
         {
             System.out.println(e);
+
         }
 
     }

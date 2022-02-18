@@ -56,10 +56,6 @@ public class AdjustWorker extends Worker
         {
             return Result.success(adjustOutput);
         }
-        else if (errorNumber == 1)
-        {
-            return Result.failure(adjustOutput);
-        }
         else
         {
             return Result.failure(adjustOutput);
