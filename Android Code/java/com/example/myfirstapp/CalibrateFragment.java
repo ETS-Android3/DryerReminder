@@ -23,6 +23,8 @@ import com.example.myfirstapp.background.CalibrateWorker;
 import com.example.myfirstapp.databinding.FragmentCalibrateBinding;
 import com.example.myfirstapp.presenter.CalibrateContract;
 
+import org.w3c.dom.Text;
+
 import java.util.List;
 
 
@@ -177,15 +179,33 @@ public class CalibrateFragment extends Fragment implements CalibrateContract.Vie
             {
                 //Check if background task is finished.
                 boolean finished = workInfo.getState().isFinished();
+                System.out.println(finished);
                 if (!finished)
                 {
                     //Change texts and buttons to show calibrate is in progress
                     showInProgress();
+
                 }
                 else
                 {
-                    //Change text and buttons to show calibrate has finished.
-                    showFinishedProgress();
+
+                    //Pull number from clients output
+                    int errorNumber = workInfo.getOutputData().getInt("calibrateOutput", 3);
+                    System.out.println(errorNumber);
+
+                    if(errorNumber == 0)
+                    {
+                        //Change text and buttons to show calibrate has finished.
+                        showFinishedProgress();
+                    }
+                    else if (errorNumber == 1)
+                    {
+                        firstCall = true;
+                        //Change texts and buttons to show adjust failed
+                        showFailure();
+
+                    }
+
                 }
 
                 //Clear work info list to reset data if button is pressed again
@@ -194,10 +214,8 @@ public class CalibrateFragment extends Fragment implements CalibrateContract.Vie
 
 
         });
-
-
-
     }
+
 
     /**
      * Destroys the view by setting the binding to null.
@@ -223,6 +241,7 @@ public class CalibrateFragment extends Fragment implements CalibrateContract.Vie
         myToast.show();
     }
 
+
     /**
      * Visually change the buttons, text, and anything else on the screen
      * to show that the phone is trying to calibrate the device.
@@ -235,12 +254,12 @@ public class CalibrateFragment extends Fragment implements CalibrateContract.Vie
         //Might make text color turn more grey and change failed to this red
         //Calibrate Button Changes
         calibrateButton.setText("Calibrating");
-        calibrateButton.setBackgroundColor(getResources().getColor(R.color.red_grey));
+        calibrateButton.setBackgroundColor(getResources().getColor(R.color.yellow_grey));
         calibrateButton.setEnabled(false);
 
         //Back Button Changes
         backButton.setEnabled(false);
-        backButton.setBackgroundColor(getResources().getColor(R.color.red_grey));
+        backButton.setBackgroundColor(getResources().getColor(R.color.yellow_grey));
     }
 
     /**
@@ -262,6 +281,26 @@ public class CalibrateFragment extends Fragment implements CalibrateContract.Vie
         backButton.setBackgroundColor(getResources().getColor(R.color.green_grey));
     }
 
+    /**
+     * Visually change the buttons, text, and anything else on the screen
+     * to show that the phone is trying to calibrate the device.
+     */
+    public void showFailure()
+    {
+        //Text Changes
+        showBasicText.setText("Calibration has failed. Make sure device is on.");
+
+
+        //Might make text color turn more grey and change failed to this red
+        //Calibrate Button Changes
+        calibrateButton.setText("Calibrate");
+        calibrateButton.setBackgroundColor(getResources().getColor(R.color.red_grey));
+        calibrateButton.setEnabled(true);
+
+        //Back Button Changes
+        backButton.setBackgroundColor(getResources().getColor(R.color.red_grey));
+        backButton.setEnabled(true);
+    }
 
 
 
