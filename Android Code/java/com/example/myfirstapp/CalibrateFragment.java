@@ -19,7 +19,7 @@ import androidx.work.WorkContinuation;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
-import com.example.myfirstapp.background.ClientWorker;
+import com.example.myfirstapp.background.CalibrateWorker;
 import com.example.myfirstapp.databinding.FragmentCalibrateBinding;
 import com.example.myfirstapp.presenter.CalibrateContract;
 
@@ -115,7 +115,7 @@ public class CalibrateFragment extends Fragment implements CalibrateContract.Vie
                         System.out.println("----------------------------Start");
 
 
-                        OneTimeWorkRequest calibrateWorker = new OneTimeWorkRequest.Builder(ClientWorker.class)
+                        OneTimeWorkRequest calibrateWorker = new OneTimeWorkRequest.Builder(CalibrateWorker.class)
                                 .addTag("Calibrate")
                                 .build();
 
