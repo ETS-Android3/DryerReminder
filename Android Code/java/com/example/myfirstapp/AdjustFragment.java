@@ -35,6 +35,7 @@ import java.util.List;
 public class AdjustFragment extends Fragment
 {
 
+    //Variables based on front-end items
     private FragmentAdjustBinding binding;
     SeekBar adjustSeekBar;
     TextView adjustText;
@@ -42,7 +43,7 @@ public class AdjustFragment extends Fragment
     Button backButton;
     int adjustNumber;
 
-    //Call Worker
+    //Call Worker and Live Data with Worker Info
     private WorkManager myClientManager;
     private LiveData<List<WorkInfo>> mySavedWorkerInfo;
 
@@ -65,10 +66,11 @@ public class AdjustFragment extends Fragment
         //Set to true when user first comes to page
         firstCall = true;
 
-        //Initialize WorkerManager and WorkerInfo
+        //Initialize WorkerManager and WorkerInfo with tag Adjust
         myClientManager = WorkManager.getInstance(getActivity().getApplicationContext());
         mySavedWorkerInfo = myClientManager.getWorkInfosByTagLiveData("Adjust");
 
+        //Binding Fragment for front end items
         binding = FragmentAdjustBinding.inflate(inflater, container, false);
         adjustSeekBar = binding.getRoot().findViewById(R.id.seekBar);
         adjustText = binding.getRoot().findViewById(R.id.adjustNumber);
@@ -87,6 +89,8 @@ public class AdjustFragment extends Fragment
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState)
     {
         super.onViewCreated(view, savedInstanceState);
+
+        //Initialize adjust button
         adjustButton = view.findViewById(R.id.adjust_confirm_button);
 
         //Confirm the Adjust number and call the API to save it to the Pi.
@@ -96,7 +100,9 @@ public class AdjustFragment extends Fragment
             public void onClick(View view)
             {
 
+                //Set to false so device can show in progress to user
                 firstCall = false;
+
                 //Attempt to connect to Pi and save the adjust value
                 try
                 {
@@ -108,13 +114,14 @@ public class AdjustFragment extends Fragment
                         System.out.println("----------------------------Start");
 
 
+                        //Setup work request using the adjust worker and tag it under adjust.
                         OneTimeWorkRequest AdjustWorker = new OneTimeWorkRequest.Builder(AdjustWorker.class)
                                 .addTag("Adjust")
                                 .setInputData(adjustInput())
                                 .build();
 
+                        //Start the adjust background task
                         WorkContinuation start = myClientManager.beginUniqueWork("Adjusting", ExistingWorkPolicy.KEEP, AdjustWorker);
-
                         start.enqueue();
 
 
@@ -130,12 +137,11 @@ public class AdjustFragment extends Fragment
                 }
                 catch (Exception e)
                 {
+                    //If exception is caught show failure to user
                     System.out.println(e);
+                    showFailure();
                 }
-                finally //Make sure device is freed, even after an error
-                {
-                    System.out.println("Button finished");
-                }
+                // put log here
             }
         });
 
@@ -212,7 +218,7 @@ public class AdjustFragment extends Fragment
                 System.out.println(finished);
                 if (!finished)
                 {
-                    //Change texts and buttons to show calibrate is in progress
+                    //Change texts and buttons to show adjust is in progress
                     showInProgress();
 
                 }
@@ -223,9 +229,10 @@ public class AdjustFragment extends Fragment
                     int errorNumber = workInfo.getOutputData().getInt("adjustOutput", 3);
                     System.out.println(errorNumber);
 
+                    //Check if the client returned properly
                     if(errorNumber == 0)
                     {
-                        //Change text and buttons to show calibrate has finished.
+                        //Change text and buttons to show Adjust has finished.
                         showFinishedProgress();
                     }
                     else if (errorNumber == 1)
@@ -263,8 +270,14 @@ public class AdjustFragment extends Fragment
         binding = null;
     }
 
+    /**
+     * Setup the data from the number to be pushed to the worker.
+     *
+     * @return data of the output created
+     */
     private Data adjustInput()
     {
+        //Building the data with the number from the adjustNumber
         Data.Builder builder = new Data.Builder();
         builder.putInt("adjustSeekbar", adjustNumber);
 
@@ -273,7 +286,7 @@ public class AdjustFragment extends Fragment
 
     /**
      * Visually change the buttons, text, and anything else on the screen
-     * to show that the phone is trying to calibrate the device.
+     * to show that the phone is trying to adjust the device.
      */
     public void showFinishedProgress()
     {
@@ -281,7 +294,7 @@ public class AdjustFragment extends Fragment
         adjustText.setText("Sensitivity was saved");
 
         //Might make text color turn more grey and change failed to this red
-        //Calibrate Button Changes
+        //Adjust Button Changes
         adjustButton.setText("Confirmed");
         adjustButton.setBackgroundColor(getResources().getColor(R.color.green_grey));
         adjustButton.setEnabled(true);
@@ -293,15 +306,15 @@ public class AdjustFragment extends Fragment
 
     /**
      * Visually change the buttons, text, and anything else on the screen
-     * to show that the phone is trying to calibrate the device.
+     * to show that the phone is trying to adjust the device.
      */
     public void showInProgress()
     {
         //Text Changes
         adjustText.setText("Saving Sensitivity");
 
-        //Might make text color turn more grey and change failed to this red
-        //Calibrate Button Changes
+
+        //Adjust Button Changes
         adjustButton.setText("Saving");
         adjustButton.setBackgroundColor(getResources().getColor(R.color.yellow_grey));
         adjustButton.setEnabled(false);
@@ -313,13 +326,12 @@ public class AdjustFragment extends Fragment
 
     /**
      * Visually change the buttons, text, and anything else on the screen
-     * to show that the phone is trying to calibrate the device.
+     * to show that the phone is trying to adjust the device.
      */
     public void showFailure()
     {
 
-        //Might make text color turn more grey and change failed to this red
-        //Calibrate Button Changes
+        //Adjust Button Changes
         adjustButton.setText("Adjust");
         adjustButton.setBackgroundColor(getResources().getColor(R.color.red_grey));
         adjustButton.setEnabled(true);

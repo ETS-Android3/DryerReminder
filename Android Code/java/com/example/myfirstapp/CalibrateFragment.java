@@ -78,7 +78,7 @@ public class CalibrateFragment extends Fragment implements CalibrateContract.Vie
     }
 
     /**
-     *Create all the actions for the Calibrate view.
+     * Create all the actions for the Calibrate view.
      *
      * @param view Creates the Calibrate user interface
      * @param savedInstanceState Holds the data for mapping values like strings
@@ -189,6 +189,7 @@ public class CalibrateFragment extends Fragment implements CalibrateContract.Vie
                     int errorNumber = workInfo.getOutputData().getInt("calibrateOutput", 3);
                     System.out.println(errorNumber);
 
+                    //Check if the client returned properly
                     if(errorNumber == 0)
                     {
                         //Change text and buttons to show calibrate has finished.
