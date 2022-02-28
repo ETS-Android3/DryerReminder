@@ -3,7 +3,9 @@ package com.example.myfirstapp.background;
 import static com.example.myfirstapp.app.CHANNEL_1_ID;
 
 import android.app.Notification;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.os.Build;
 import android.os.StrictMode;
 import android.view.View;
 
@@ -11,6 +13,8 @@ import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.work.Data;
+import androidx.work.ForegroundInfo;
+import androidx.work.WorkManager;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
@@ -57,6 +61,9 @@ public class DryerWorker extends Worker
         //Read Saved Range from file and save it to savedAxes
         readFromFile();
 
+        //Set as important
+        setForegroundAsync(createInfo());
+
         //Call connect to client
         int errorNumber = connectToClient();
         System.out.println("Work Error Number: " + errorNumber);
@@ -65,12 +72,14 @@ public class DryerWorker extends Worker
                 .putInt("dryerOutput", errorNumber)
                 .build();
 
+
         if (errorNumber == 0)
         {
-            sendOnChannel1();
+
             return Result.success(dryerOutput);
-        } else
-            {
+        }
+        else
+        {
             return Result.failure(dryerOutput);
         }
 
@@ -199,20 +208,51 @@ public class DryerWorker extends Worker
     }
 
     /**
-     * Will be used to send notification when fully implemented Currently left behidn from prototype.
+     * Will be used to send notification when fully implemented Currently left behind from prototype.
      */
-    public void sendOnChannel1()
+    private ForegroundInfo createInfo()
     {
         String title = "Dryer Reminder";
-        String message = "Your Dryer has finished!";
+        String message = "Your Dryer detection has started!";
         Notification notification = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_1_ID)
                 .setSmallIcon(R.drawable.ic_one)
                 .setContentTitle(title)
                 .setContentText(message)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setCategory(NotificationCompat.CATEGORY_MESSAGE)
                 .build();
 
-        notificationManager.notify(1, notification);
+        return new ForegroundInfo(1, notification);
+
     }
+
+    /*
+    private ForegroundInfo createForegroundInfo(@NonNull String progress) {
+        // Build a notification using bytesRead and contentLength
+
+        Context context = getApplicationContext();
+        String id = context.getString(R.string.notification_channel_id);
+        String title = context.getString(R.string.notification_title);
+        String cancel = context.getString(R.string.cancel_download);
+        // This PendingIntent can be used to cancel the worker
+        PendingIntent intent = WorkManager.getInstance(context)
+                .createCancelPendingIntent(getId());
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            createChannel();
+        }
+
+        Notification notification = new NotificationCompat.Builder(context, id)
+                .setContentTitle(title)
+                .setTicker(title)
+                .setSmallIcon(R.drawable.ic_work_notification)
+                .setOngoing(true)
+                // Add the cancel action to the notification which can
+                // be used to cancel the worker
+                .addAction(android.R.drawable.ic_delete, cancel, intent)
+                .build();
+
+        return new ForegroundInfo(notification);
+    }
+
+     */
+
 }
