@@ -11,10 +11,9 @@ import androidx.core.app.NotificationManagerCompat;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
+import com.example.myfirstapp.DryerFragment;
 import com.example.myfirstapp.R;
-import com.example.myfirstapp.model.TimerModel;
 
-import java.util.Timer;
 import java.util.TimerTask;
 
 public class NotifyWorker extends Worker
@@ -56,7 +55,7 @@ public class NotifyWorker extends Worker
 
 
         //Calls the schedule to run ever specified amount. Likely based on ticks. 1000 ticks is 1 second for reference.
-        TimerModel.watch.schedule(task, 200, minutesToTicks(1));
+        DryerFragment.watch.schedule(task, 200, minutesToTicks(1));
 
 
         //Return success since the task is now being run. Will need to cancel work when button is press again.
