@@ -1,10 +1,8 @@
 package com.example.myfirstapp;
 
-import android.app.Notification;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
@@ -14,7 +12,6 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkContinuation;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
-import androidx.work.Worker;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,12 +21,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.myfirstapp.background.DryerWorker;
-import com.example.myfirstapp.background.NotifyWorker;
 import com.example.myfirstapp.databinding.FragmentDryerBinding;
-import com.example.myfirstapp.model.TimerModel;
 
 import java.util.List;
-
+import java.util.Timer;
 
 
 /**
@@ -45,6 +40,7 @@ public class DryerFragment extends Fragment
     //For Notifications
     private NotificationManagerCompat notificationManager;
 
+    //Parts of the view
     private TextView dryerText;
     private Button dryerButton;
     private Button backButton;
@@ -53,9 +49,13 @@ public class DryerFragment extends Fragment
     private WorkManager myClientManager;
     private LiveData<List<WorkInfo>> mySavedWorkerInfo;
 
+    //Booleans for deciding the status of the page
     private boolean firstCall; //Checks if the device has been called
     private boolean firstNotifyCall;
     private boolean dryerStatusOff;
+
+    //Timer to call and cancel for notification. Needs to be public.
+    public static Timer watch = new Timer();
 
     /**
      * Setup the Dryer page with the layout, view, view group, etc.
@@ -117,7 +117,6 @@ public class DryerFragment extends Fragment
                     //Attempt to connect to Pi and save the adjust value
                     try
                     {
-
                         //If the version of Android is too old, then prevent the button from running.
                         int SDK_INT = android.os.Build.VERSION.SDK_INT;
                         if (SDK_INT > 8)
@@ -130,9 +129,13 @@ public class DryerFragment extends Fragment
                                     .addTag("Dryer")
                                     .build();
 
+                            //Setup work request using the Notify worker and tag it under Notify.
+                            OneTimeWorkRequest NotifyWorker = new OneTimeWorkRequest.Builder(com.example.myfirstapp.background.NotifyWorker.class)
+                                    .addTag("Notify")
+                                    .build();
 
-                            //Start the adjust background task
-                            WorkContinuation start = myClientManager.beginUniqueWork("DryingReminder", ExistingWorkPolicy.KEEP, DryerWorker);
+                            //Start the Dryer background task, then notify
+                            WorkContinuation start = myClientManager.beginUniqueWork("DryingReminder", ExistingWorkPolicy.KEEP, DryerWorker).then(NotifyWorker);
                             start.enqueue();
 
 
@@ -160,7 +163,7 @@ public class DryerFragment extends Fragment
                     dryerStatusOff = true;
 
                     //Turn off notification. Should add cancel for workers too.
-                    TimerModel.watch.cancel();
+                    watch.cancel();
 
                     //Change button text
                     dryerButton.setText("Start");
@@ -172,10 +175,6 @@ public class DryerFragment extends Fragment
         //Navigate User to Setting Fragment by clicking the Back Button
         binding.dryerBackButton.setOnClickListener(viewBack ->
         {
-
-
-
-
             //Specify the navigation action
             NavHostFragment.findNavController(DryerFragment.this)
                     .navigate(R.id.action_dryerFragment_to_HomeFragment);
@@ -184,7 +183,8 @@ public class DryerFragment extends Fragment
 
 
     //Will show the status when the background task is called
-        mySavedWorkerInfo.observe(getViewLifecycleOwner(), listOfWorkInfos -> {
+        mySavedWorkerInfo.observe(getViewLifecycleOwner(), listOfWorkInfos ->
+    {
 
         //If work is null or empty then do nothing.
         if (listOfWorkInfos == null || listOfWorkInfos.isEmpty())
@@ -217,23 +217,17 @@ public class DryerFragment extends Fragment
                 //Check if the client returned properly
                 if(errorNumber == 0)
                 {
+                    //Change text and buttons to show Adjust has finished.
+                    showFinishedProgress();
+                    System.out.println("Finished process");
+
                     //Prevent this from being called multiple times by using a boolean.
                     if(firstNotifyCall)
                     {
                         firstNotifyCall = false;
 
-                        //Change text and buttons to show Adjust has finished.
-                        showFinishedProgress();
-                        System.out.println("Finished process");
 
-                        //Setup work request using the Notify worker and tag it under Notify.
-                        OneTimeWorkRequest NotifyWorker = new OneTimeWorkRequest.Builder(com.example.myfirstapp.background.NotifyWorker.class)
-                                .addTag("Notify")
-                                .build();
 
-                        //Start the adjust background task
-                        WorkContinuation start = myClientManager.beginUniqueWork("NotifyReminder", ExistingWorkPolicy.KEEP, NotifyWorker);
-                        start.enqueue();
 
                     }
 
@@ -256,8 +250,6 @@ public class DryerFragment extends Fragment
             //Clear work info list to reset data if button is pressed again
             listOfWorkInfos.clear();
         }
-
-
     });
 }
 
@@ -297,7 +289,7 @@ public class DryerFragment extends Fragment
     public void showInProgress()
     {
         //Text Changes
-        dryerText.setText("Dryer is still spinning");
+        dryerText.setText("Dryer is spinning");
 
 
         //Dryer Button Changes
