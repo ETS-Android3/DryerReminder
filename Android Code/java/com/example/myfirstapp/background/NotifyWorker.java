@@ -14,8 +14,19 @@ import androidx.work.WorkerParameters;
 import com.example.myfirstapp.DryerFragment;
 import com.example.myfirstapp.R;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.Timer;
 import java.util.TimerTask;
 
+/**
+ *
+ */
 public class NotifyWorker extends Worker
 {
 
@@ -39,6 +50,9 @@ public class NotifyWorker extends Worker
     {
 
         System.out.println("Notify Worker");
+
+        sendOnChannel1(true);
+
         //TimerTask have to be setup this way. This will send a notification every few minutes
         TimerTask task = new TimerTask()
         {
@@ -47,15 +61,25 @@ public class NotifyWorker extends Worker
             @Override
             public void run()
             {
-                sendOnChannel1(firstCall);
+                sendOnChannel1(false);
 
-                firstCall = false;
             }
         };
 
 
-        //Calls the schedule to run ever specified amount. Likely based on ticks. 1000 ticks is 1 second for reference.
-        DryerFragment.watch.schedule(task, 200, minutesToTicks(1));
+        //Find how many minutes based on text file
+        String foundText = readFromFile();
+
+        int minutes = decideMinutes(foundText);
+
+
+        //If minutes equal or less then zero ignore timer task.
+        if (minutes > 0)
+        {
+            //Calls the schedule to run ever specified amount. Likely based on ticks. 1000 ticks is 1 second for reference.
+            DryerFragment.watch = new Timer();
+            DryerFragment.watch.schedule(task, 200, minutesToTicks(minutes));
+        }
 
 
         //Return success since the task is now being run. Will need to cancel work when button is press again.
@@ -100,6 +124,84 @@ public class NotifyWorker extends Worker
     {
         //1000 ticks is a second. 60 seconds is a minute.
         return x * 60 * 1000;
+    }
+
+    /**
+     * FIIIIIXXXXXXXXXXXXXXXXXXX
+     * Take Calibrated range from the Raspberry Pi and save it to a text file to use it later.
+     * Currently reads the same text file to show it has been created. That will be moved to Dryer Fragment later
+     *
+     */
+    public String readFromFile()
+    {
+
+        //Reading the file Move to Dryer Later------------------------------
+
+        //Create the file input stream
+        FileInputStream fileInput = null;
+
+        //Try to find text file
+        try
+        {
+            fileInput = getApplicationContext().openFileInput("configNotify.txt"); //Use context to read from text file
+        }
+        catch (FileNotFoundException e)
+        {
+            e.printStackTrace();
+        }
+
+        //Take the text file and try to convert it to an AxesModel
+        InputStreamReader inputStreamReader = new InputStreamReader(fileInput, StandardCharsets.UTF_8);
+        StringBuilder stringBuilder = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(inputStreamReader))
+        {
+            String line = reader.readLine();
+            System.out.println(line);
+
+            //Convert the range to an axesModel
+            String textRead = line;
+
+
+            String contents = stringBuilder.toString();
+            System.out.println("File Found:" + textRead);
+
+            return textRead;
+        }
+        catch (IOException e)
+        {
+            System.out.println(e);
+            return "Never";
+
+        }
+    }
+
+    private int decideMinutes(String textFound)
+    {
+        int minutes = 0;
+
+        if(textFound.equals("Never"))
+        {
+            minutes = 0;
+        }
+        else if(textFound.equals("1 Minute"))
+        {
+            minutes = 1;
+        }
+        else if(textFound.equals("5 Minutes"))
+        {
+            minutes = 5;
+        }
+        else if(textFound.equals("10 Minutes"))
+        {
+            minutes = 10;
+        }
+        else if(textFound.equals("15 Minutes"))
+        {
+            minutes = 15;
+        }
+
+
+        return minutes;
     }
 }
 
