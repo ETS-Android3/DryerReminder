@@ -3,15 +3,13 @@ package com.example.myfirstapp.background;
 import static com.example.myfirstapp.app.CHANNEL_1_ID;
 
 import android.app.Notification;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.os.Build;
 import android.os.StrictMode;
-import android.view.View;
+import android.util.Log;
+
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
 import androidx.work.Data;
 import androidx.work.ForegroundInfo;
 import androidx.work.WorkManager;
@@ -25,7 +23,6 @@ import com.example.myfirstapp.model.ClientModel;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -37,42 +34,55 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-import static com.example.myfirstapp.app.CHANNEL_1_ID;
 
+/**
+ * Worker to be used by the Dryer Fragment. This will send the saved range from calibrate to ditirmine when the dryer stops.
+ * If the API returns the same data that was sent it then the dryer has stopped.
+ * This must be ran as a Foreground asynchronous task, since the call to the Pi may last more then 10 minutes.
+ */
 public class DryerWorker extends Worker
 {
+    //Axes of the saved calibrated ranges
     private AxesModel savedAxes = new AxesModel();
 
-    //For Notifications
-    private NotificationManagerCompat notificationManager;
-
+    /**
+     * Constructor for the worker class
+     * @param context Important details about the user's phone needed to run certain methods
+     * @param workerParams Details about the worker
+     */
     public DryerWorker(@NonNull Context context, @NonNull WorkerParameters workerParams)
     {
         super(context, workerParams);
-        //Notification
-        notificationManager = NotificationManagerCompat.from(getApplicationContext());
     }
 
+    /**
+     * The method that will be used when the worker is called from the fragment.
+     * @return Result which returns a success or failure, along with output relating to why.
+     */
     @NonNull
     @Override
     public Result doWork()
     {
 
+        Log.e("Dryer", "Doin work");
         //Read Saved Range from file and save it to savedAxes
         readFromFile();
 
-        //Set as important
+        //This will send a notification to the user to let them know it is running as an important task
+        //Without this the worker would shut down in less then 10 minutes
         setForegroundAsync(createInfo());
 
-        //Call connect to client
-        int errorNumber = connectToClient();
+        //Call connect to API
+        //int errorNumber = connectToApi();
+        int errorNumber = 0;
         System.out.println("Work Error Number: " + errorNumber);
 
+        //Setup data to send the errorNumber.
         Data dryerOutput = new Data.Builder()
                 .putInt("dryerOutput", errorNumber)
                 .build();
 
-
+        //If error number is zero, return success, else return failure
         if (errorNumber == 0)
         {
 
@@ -80,13 +90,20 @@ public class DryerWorker extends Worker
         }
         else
         {
+            //Cancels the Notify worker since dryer might not have stopped.
+            WorkManager.getInstance(getApplicationContext()).cancelAllWorkByTag("Notify");
             return Result.failure(dryerOutput);
         }
 
     }
 
 
-    int connectToClient()
+    /**
+     * Uses OkHttp to POST a JSON value as request to the Raspberry Pi's API. The value will be the saved range from Calibrate
+     * A response code is used to determine if the dryer has stopped or an error has happened.
+     * @return int which determines the result of attempting to connect to API.
+     */
+    int connectToApi()
     {
 
         //Setup Json String
@@ -95,7 +112,7 @@ public class DryerWorker extends Worker
                         "\"axisZ\":" + savedAxes.getAxisZ() +  "}";
         System.out.println(json);
 
-        //Model that holds the information to pull data from the Client.
+        //Model that holds the information to pull data from the API.
         ClientModel piModel = new ClientModel();
 
         //Needed to call the Pi
@@ -110,27 +127,26 @@ public class DryerWorker extends Worker
         OkHttpClient client = new OkHttpClient();
 
         //Setup the builder so that it does not time out after 10 seconds (Needed for dryer
-        //I believe write is the part that needs to wait awhile.
+        //The Write/Read Connection is open for a long time since a dryer could take up to two hours to finish.
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
         builder.connectTimeout(1, TimeUnit.MINUTES) // connect timeout
                 .writeTimeout(2, TimeUnit.HOURS) // write timeout
                 .readTimeout(2, TimeUnit.HOURS); // read timeout
-
         client = builder.build();
 
+        //Makes the attribute of the request a JSON request
         MediaType JSON = MediaType.get("application/json; charset=utf-8");
-
-        //IT BETTER WORK
         RequestBody body = RequestBody.Companion.create(json, JSON);
 
-        //Setup the request and pick the URL we are calling
+        //Setup the request and pick the URL
         Request postRequest = new Request.Builder()
                 .post(body)
                 .url("http://" + piModel.getIpAddress() + ":" + piModel.getPort() + "/DryPi/dryStop")  //api that is being called
                 .addHeader("cache-control", "no-cache")
                 .addHeader("Authorization", "Bearer " + piModel.getToken()) //Security Token
                 .build();
-        try {
+        try
+        {
             System.out.println("START OF END--------------------------------------");
 
             //Execute call.
@@ -146,10 +162,11 @@ public class DryerWorker extends Worker
             //If the API returns a bad response then assume error
             if (statusCode != 200)
             {
+                //Return 1 as a reponse error
                 return 1;
             }
 
-            //If response is not adjust then assume an error.
+            //Return a 0 as success
             return 0;
 
         }
@@ -157,13 +174,15 @@ public class DryerWorker extends Worker
         {
             System.out.println("Bad CLICK---------------------------------");
             e.printStackTrace();
+
+            //Return 2 as an exception error.
             return 2;
         }
     }
 
     /**
-     * Take Calibrated range from the Raspberry Pi and save it to a text file to use it later.
-     * Currently reads the same text file to show it has been created. That will be moved to Dryer Fragment later
+     * Find calibrated range from a text file that was saved from the calibrate worker.
+     * Will save it to the savedRange variable.
      *
      */
     private void readFromFile()
@@ -208,7 +227,8 @@ public class DryerWorker extends Worker
     }
 
     /**
-     * Will be used to send notification when fully implemented Currently left behind from prototype.
+     * A notification needs to be created to inform the user that their phone is
+     * running a task for a long period of time.
      */
     private ForegroundInfo createInfo()
     {
@@ -224,35 +244,5 @@ public class DryerWorker extends Worker
 
     }
 
-    /*
-    private ForegroundInfo createForegroundInfo(@NonNull String progress) {
-        // Build a notification using bytesRead and contentLength
-
-        Context context = getApplicationContext();
-        String id = context.getString(R.string.notification_channel_id);
-        String title = context.getString(R.string.notification_title);
-        String cancel = context.getString(R.string.cancel_download);
-        // This PendingIntent can be used to cancel the worker
-        PendingIntent intent = WorkManager.getInstance(context)
-                .createCancelPendingIntent(getId());
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            createChannel();
-        }
-
-        Notification notification = new NotificationCompat.Builder(context, id)
-                .setContentTitle(title)
-                .setTicker(title)
-                .setSmallIcon(R.drawable.ic_work_notification)
-                .setOngoing(true)
-                // Add the cancel action to the notification which can
-                // be used to cancel the worker
-                .addAction(android.R.drawable.ic_delete, cancel, intent)
-                .build();
-
-        return new ForegroundInfo(notification);
-    }
-
-     */
 
 }

@@ -25,25 +25,35 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 /**
- *
+ * Worker to be used by the Dryer Fragment after the dryer worker. This will send a notification to tell the user the
+ * dryer stopped. Then by using the time saved from Notify fragment, it will remind the user constantly until they stop it.
+ * This MAY need to be ran as a Foreground asynchronous task. More testing needed
  */
 public class NotifyWorker extends Worker
 {
 
-    //For Notifications
+    //To Manage Notifications
     private NotificationManagerCompat notificationManager;
-    private boolean firstCall = true;
 
+
+    /**
+     * Constructor for the worker class
+     * @param context Important details about the user's phone needed to run certain methods
+     * @param workerParams Details about the worker
+     */
     public NotifyWorker(@NonNull Context context, @NonNull WorkerParameters workerParams)
     {
         super(context, workerParams);
-
 
         //Notification
         notificationManager = NotificationManagerCompat.from(getApplicationContext());
 
     }
 
+    /**
+     * The method that will be used when the worker is called from the fragment.
+     * @return Result which returns a success or failure, along with output relating to why.
+     */
     @NonNull
     @Override
     public Result doWork()
@@ -51,9 +61,10 @@ public class NotifyWorker extends Worker
 
         System.out.println("Notify Worker");
 
+        //Send a notification telling the user their dryer stopped.
         sendOnChannel1(true);
 
-        //TimerTask have to be setup this way. This will send a notification every few minutes
+        //TimerTask has to be setup this way. This will send a notification every few minutes
         TimerTask task = new TimerTask()
         {
 
@@ -127,15 +138,14 @@ public class NotifyWorker extends Worker
     }
 
     /**
-     * FIIIIIXXXXXXXXXXXXXXXXXXX
-     * Take Calibrated range from the Raspberry Pi and save it to a text file to use it later.
-     * Currently reads the same text file to show it has been created. That will be moved to Dryer Fragment later
+     * Reads text file saved from notify fragment and
+     * returns string of it's content. Used to determine
+     * how often to send notification, if at all.
      *
+     * @return String of file's content
      */
     public String readFromFile()
     {
-
-        //Reading the file Move to Dryer Later------------------------------
 
         //Create the file input stream
         FileInputStream fileInput = null;
@@ -150,19 +160,14 @@ public class NotifyWorker extends Worker
             e.printStackTrace();
         }
 
-        //Take the text file and try to convert it to an AxesModel
+        //Take the text file and try to read from it
         InputStreamReader inputStreamReader = new InputStreamReader(fileInput, StandardCharsets.UTF_8);
-        StringBuilder stringBuilder = new StringBuilder();
         try (BufferedReader reader = new BufferedReader(inputStreamReader))
         {
+            //Save file line as to a string variable
             String line = reader.readLine();
-            System.out.println(line);
-
-            //Convert the range to an axesModel
             String textRead = line;
 
-
-            String contents = stringBuilder.toString();
             System.out.println("File Found:" + textRead);
 
             return textRead;
@@ -170,11 +175,18 @@ public class NotifyWorker extends Worker
         catch (IOException e)
         {
             System.out.println(e);
+            //If error is caught then assume the user does not want this feature
             return "Never";
 
         }
     }
 
+    /**
+     * Translates string from notify into a number, in the form of minutes.
+     * Defaults to 0 if file is not found.
+     * @param textFound String found from text file
+     * @return Int that represents minutes between notifications.
+     */
     private int decideMinutes(String textFound)
     {
         int minutes = 0;
@@ -199,7 +211,6 @@ public class NotifyWorker extends Worker
         {
             minutes = 15;
         }
-
 
         return minutes;
     }

@@ -14,12 +14,8 @@ import com.example.myfirstapp.model.ClientModel;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 
@@ -29,34 +25,49 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
+
 /**
- * Client worker that will
+ * Worker to be used by the Calibrate Fragment. This will call the Pi and tell it to calibrate the device.
+ * The API will then return that data from calibration. After it will be saved to a text file on the phone.
+ * This will run in the background on the phone.
  */
 public class CalibrateWorker extends Worker
 {
 
+    //Axes of the saved calibrated ranges
     private AxesModel savedAxes = new AxesModel();
 
 
+    /**
+     * Constructor for the worker class
+     * @param context Important details about the user's phone needed to run certain methods
+     * @param workerParams Details about the worker
+     */
     public CalibrateWorker(@NonNull Context context, @NonNull WorkerParameters workerParams)
     {
         super(context, workerParams);
     }
 
+    /**
+     * The method that will be used when the worker is called from the fragment.
+     * @return Result which returns a success or failure, along with output relating to why
+     */
     @NonNull
     @Override
     public Result doWork()
     {
 
-        //Call connect to client
+        //Call connect to API and save error number
         int errorNumber = connectToClient();
         System.out.println("Work Error Number: " + errorNumber);
 
+        //Setup data to send the errorNumber.
         Data calibrateOutput = new Data.Builder()
                 .putInt("calibrateOutput", errorNumber)
                 .build();
 
 
+        //If error number is zero, return success, else return failure
         if (errorNumber == 0)
         {
             return Result.success(calibrateOutput);
@@ -69,6 +80,12 @@ public class CalibrateWorker extends Worker
     }
 
 
+    /**
+     * Uses OkHttp to POST an empty request to the Raspberry Pi's API.
+     * It will  receive a JSON value of the saved range that will need to be saved.
+     *
+     * @return int which determines the result of attempting to connect to API.
+     */
     int connectToClient()
     {
         //Model that holds the information to pull data from the Client.
@@ -86,24 +103,26 @@ public class CalibrateWorker extends Worker
         OkHttpClient client = new OkHttpClient();
 
         //Determines how long the client will try to connect to the URL before timing out.
+        //Calibrate should be quick so time is short
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
         builder.connectTimeout(1, TimeUnit.MINUTES) // connect timeout
                 .writeTimeout(1, TimeUnit.MINUTES) // write timeout
                 .readTimeout(1, TimeUnit.MINUTES); // read timeout
-
         client = builder.build();
 
         //Needed to post, even from empty form
         RequestBody formBody = new FormBody.Builder()
                 .build();
 
-        //Setup the request and pick the URL we are calling
+        //Setup the request and pick the URL
         Request postRequest = new Request.Builder()
                 .post(formBody)
                 .url("http://" + piModel.getIpAddress() + ":" + piModel.getPort()+"/DryPi/calibrate")  //api that is being called
                 .addHeader("cache-control", "no-cache")
                 .addHeader("Authorization", "Bearer " + piModel.getToken()) //Security Token
                 .build();
+
+        //Attempt to connect to API.
         try
         {
             System.out.println("START OF END--------------------------------------");
@@ -113,7 +132,6 @@ public class CalibrateWorker extends Worker
 
             //Take the response and save it to a string.
             String jsonString = response.body().string();
-            //System.out.println(jsonString);
 
             //Convert the string to a JSON
             JSONObject json = new JSONObject(jsonString);
@@ -127,25 +145,29 @@ public class CalibrateWorker extends Worker
 
 
             System.out.println("END OF THE CLICK--------------------------------------");
+
+            //Return 0 meaning the API call and file written succeeded.
             return 0;
         }
         catch (IOException | JSONException e)
         {
             System.out.println("Bad CLICK---------------------------------");
             e.printStackTrace();
+
+            //Return a 1 meaning an error happened.
             return 1;
         }
     }
 
     /**
      * Take Calibrated range from the Raspberry Pi and save it to a text file to use it later.
-     * Currently reads the same text file to show it has been created. That will be moved to Dryer Fragment later
      * @param savedRange Save range that was calibrated from pi
      *
      */
     public void writeToFile(AxesModel savedRange)
     {
         System.out.println("Write to File-----------------------");
+
         //Try to write to a text file
         try
         {
@@ -153,6 +175,7 @@ public class CalibrateWorker extends Worker
             String filename = "configCalibrate.txt";
             String fileContents = (savedRange.getAxisX() + "\n" + savedRange.getAxisY() + "\n" + savedRange.getAxisZ() + "\n");
 
+            //Attempt to save to text file using phones context
             try (FileOutputStream fileOutput = getApplicationContext().openFileOutput(filename, Context.MODE_PRIVATE))
             {
                 fileOutput.write(fileContents.getBytes(StandardCharsets.UTF_8));
@@ -162,46 +185,6 @@ public class CalibrateWorker extends Worker
         catch(IOException e)
         {
             System.out.println(e);
-        }
-
-        //Reading the file Move to Dryer Later------------------------------
-        //Converts text file numbers to axes model
-        AxesModel newRange = new AxesModel();
-
-        //Create the file input stream
-        FileInputStream fileInput = null;
-
-        //Try to find text file
-        try
-        {
-            fileInput = getApplicationContext().openFileInput("configCalibrate.txt"); //Use context to read from text file
-        }
-        catch (FileNotFoundException e)
-        {
-            e.printStackTrace();
-        }
-
-        //Take the text file and try to convert it to an AxesModel
-        InputStreamReader inputStreamReader = new InputStreamReader(fileInput, StandardCharsets.UTF_8);
-        StringBuilder stringBuilder = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(inputStreamReader))
-        {
-            String line = reader.readLine();
-
-            //Convert the range to an axesModel
-            newRange.setAxisX((Double.parseDouble(line)));
-            line = reader.readLine();
-            newRange.setAxisY((Double.parseDouble(line)));
-            line = reader.readLine();
-            newRange.setAxisZ((Double.parseDouble(line)));
-
-            String contents = stringBuilder.toString();
-            System.out.println("File Found:" + newRange.getAxisX() + " " + newRange.getAxisY() + " " + newRange.getAxisZ());
-        }
-        catch (IOException e)
-        {
-            System.out.println(e);
-
         }
 
     }
