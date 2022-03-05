@@ -42,8 +42,6 @@ import okhttp3.Response;
  */
 public class DryerWorker extends Worker
 {
-    //Axes of the saved calibrated ranges
-    private AxesModel savedAxes = new AxesModel();
 
     /**
      * Constructor for the worker class
@@ -53,6 +51,7 @@ public class DryerWorker extends Worker
     public DryerWorker(@NonNull Context context, @NonNull WorkerParameters workerParams)
     {
         super(context, workerParams);
+        Log.i("Dryer Worker", "Created");
     }
 
     /**
@@ -64,37 +63,57 @@ public class DryerWorker extends Worker
     public Result doWork()
     {
 
-        Log.e("Dryer", "Doin work");
+        Log.i("Dryer Worker", "Worker Started");
+
         //Read Saved Range from file and save it to savedAxes
-        readFromFile();
+        AxesModel savedAxes = readFromFile();
 
-        //This will send a notification to the user to let them know it is running as an important task
-        //Without this the worker would shut down in less then 10 minutes
-        setForegroundAsync(createInfo());
-
-        //Call connect to API
-        //int errorNumber = connectToApi();
-        int errorNumber = 0;
-        System.out.println("Work Error Number: " + errorNumber);
-
-        //Setup data to send the errorNumber.
-        Data dryerOutput = new Data.Builder()
-                .putInt("dryerOutput", errorNumber)
-                .build();
-
-        //If error number is zero, return success, else return failure
-        if (errorNumber == 0)
+        //If the values are not default then the file was read correctly
+        if(savedAxes.getAxisX() != 0 && savedAxes.getAxisY() != 0 && savedAxes.getAxisZ() != 0)
         {
+            //This will send a notification to the user to let them know it is running as an important task
+            //Without this the worker would shut down in less then 10 minutes
+            setForegroundAsync(createInfo());
 
-            return Result.success(dryerOutput);
+            //Call connect to API
+            int errorNumber = connectToApi(savedAxes);
+            //int errorNumber = 0; //For testing app with no pi
+
+            Log.i("Dryer Worker", "Error Number is - " + errorNumber);
+
+            //Setup data to send the errorNumber.
+            Data dryerOutput = new Data.Builder()
+                    .putInt("dryerOutput", errorNumber)
+                    .build();
+
+            //If error number is zero, return success, else return failure
+            if (errorNumber == 0)
+            {
+                Log.i("Dryer Worker", "Worker is a Success");
+                return Result.success(dryerOutput);
+            }
+            else
+            {
+                Log.e("Dryer Worker", "Worker has Failed From Connection Problems");
+
+                //Cancels the Notify worker since dryer might not have stopped.
+                WorkManager.getInstance(getApplicationContext()).cancelAllWorkByTag("Notify");
+                return Result.failure(dryerOutput);
+            }
         }
         else
         {
+            Log.e("Dryer Worker", "Worker has Failed From File Problems");
+
+            //Setup data to send the errorNumber.
+            Data dryerOutput = new Data.Builder()
+                    .putInt("dryerOutput", 2)
+                    .build();
+
             //Cancels the Notify worker since dryer might not have stopped.
             WorkManager.getInstance(getApplicationContext()).cancelAllWorkByTag("Notify");
             return Result.failure(dryerOutput);
         }
-
     }
 
 
@@ -103,14 +122,16 @@ public class DryerWorker extends Worker
      * A response code is used to determine if the dryer has stopped or an error has happened.
      * @return int which determines the result of attempting to connect to API.
      */
-    int connectToApi()
+    private int connectToApi(AxesModel savedAxes)
     {
+        Log.i("Dryer Worker API", "Method has started");
 
         //Setup Json String
         String json = "{\"axisX\":" + savedAxes.getAxisX() + ",\n" +
                         "\"axisY\":" + savedAxes.getAxisY() + ",\n" +
                         "\"axisZ\":" + savedAxes.getAxisZ() +  "}";
-        System.out.println(json);
+
+        Log.i("Dryer Worker API", "JSON Setup as " + json);
 
         //Model that holds the information to pull data from the API.
         ClientModel piModel = new ClientModel();
@@ -120,8 +141,6 @@ public class DryerWorker extends Worker
                 .permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
-
-        System.out.println("START OF THE CLICK--------------------------------------");
 
         //Setup OkHttpClient
         OkHttpClient client = new OkHttpClient();
@@ -145,35 +164,42 @@ public class DryerWorker extends Worker
                 .addHeader("cache-control", "no-cache")
                 .addHeader("Authorization", "Bearer " + piModel.getToken()) //Security Token
                 .build();
+
+        Log.i("Dryer Worker API", "OkHttpClient has been built");
+        Log.i("Dryer Worker API", "IpAddress - " + piModel.getIpAddress() + " Port - " + piModel.getPort());
+
+
+        //Attempt to connect to API
         try
         {
-            System.out.println("START OF END--------------------------------------");
+            Log.i("Dryer Worker API", "Attempting to connect to API");
 
             //Execute call.
             Response response = client.newCall(postRequest).execute();
 
             //Take the response and save it to a string.
             int statusCode = response.code();
-            System.out.println(statusCode);
-            System.out.println(response.body());
 
-            System.out.println("END OF THE CLICK--------------------------------------");
+            Log.i("Dryer Worker API", "Response status is " + statusCode);
+            Log.i("Adjust Worker API", "Response body is " + response.body());
 
             //If the API returns a bad response then assume error
             if (statusCode != 200)
             {
-                //Return 1 as a reponse error
+                //Return 1 as a response error
+                Log.e("Adjust Worker API", "Connection was not successful");
                 return 1;
             }
 
             //Return a 0 as success
+            Log.e("Adjust Worker API", "Connection was successful");
             return 0;
 
         }
         catch (IOException e)
         {
-            System.out.println("Bad CLICK---------------------------------");
-            e.printStackTrace();
+            Log.i("Dryer Worker API", "Connection failed");
+            Log.e("Dryer Worker API", e.toString());
 
             //Return 2 as an exception error.
             return 2;
@@ -185,8 +211,11 @@ public class DryerWorker extends Worker
      * Will save it to the savedRange variable.
      *
      */
-    private void readFromFile()
+    private AxesModel readFromFile()
     {
+        Log.i("Dryer Worker Read", "Method has started");
+
+        AxesModel savedAxes = new AxesModel();
 
         //Create the file input stream
         FileInputStream fileInput = null;
@@ -194,35 +223,46 @@ public class DryerWorker extends Worker
         //Try to find text file
         try
         {
+            Log.i("Dryer Worker Read", "Attempt to find file");
             fileInput = getApplicationContext().openFileInput("configCalibrate.txt"); //Use context to read from text file
+
+            //Take the text file and try to convert it to an AxesModel
+            InputStreamReader inputStreamReader = new InputStreamReader(fileInput, StandardCharsets.UTF_8);
+            StringBuilder stringBuilder = new StringBuilder();
+            try (BufferedReader reader = new BufferedReader(inputStreamReader))
+            {
+                Log.i("Dryer Worker Read", "Attempt to read from file");
+
+                String line = reader.readLine();
+                System.out.println(line);
+
+                //Convert the range to an axesModel
+                savedAxes.setAxisX((Double.parseDouble(line)));
+                line = reader.readLine();
+                savedAxes.setAxisY((Double.parseDouble(line)));
+                line = reader.readLine();
+                savedAxes.setAxisZ((Double.parseDouble(line)));
+
+                String contents = stringBuilder.toString();
+
+                Log.i("Dryer Worker Read", "Saved Range is X: " + savedAxes.getAxisX() + ", Y: " + savedAxes.getAxisY() + ", Z: " + savedAxes.getAxisZ());
+
+            }
+            catch (IOException e)
+            {
+                Log.w("Dryer Worker Read", "Reading file failed");
+                Log.e("Dryer Worker Read", e.toString());
+
+            }
+
         }
         catch (FileNotFoundException e)
         {
-            e.printStackTrace();
+            Log.w("Dryer Worker Read", "Finding file failed");
+            Log.e("Dryer Worker Read", e.toString());
         }
 
-        //Take the text file and try to convert it to an AxesModel
-        InputStreamReader inputStreamReader = new InputStreamReader(fileInput, StandardCharsets.UTF_8);
-        StringBuilder stringBuilder = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(inputStreamReader))
-        {
-            String line = reader.readLine();
-            System.out.println(line);
-            //Convert the range to an axesModel
-            savedAxes.setAxisX((Double.parseDouble(line)));
-            line = reader.readLine();
-            savedAxes.setAxisY((Double.parseDouble(line)));
-            line = reader.readLine();
-            savedAxes.setAxisZ((Double.parseDouble(line)));
-
-            String contents = stringBuilder.toString();
-            System.out.println("File Found:" + savedAxes.getAxisX() + " " + savedAxes.getAxisY() + " " + savedAxes.getAxisZ());
-        }
-        catch (IOException e)
-        {
-            System.out.println(e);
-
-        }
+        return savedAxes;
 
     }
 
@@ -232,6 +272,8 @@ public class DryerWorker extends Worker
      */
     private ForegroundInfo createInfo()
     {
+        Log.i("Dryer Worker Info", "Method has started");
+
         String title = "Dryer Reminder";
         String message = "Your Dryer detection has started!";
         Notification notification = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_1_ID)
@@ -239,6 +281,8 @@ public class DryerWorker extends Worker
                 .setContentTitle(title)
                 .setContentText(message)
                 .build();
+
+        Log.i("Dryer Worker Info", "ForegroundInfo Created");
 
         return new ForegroundInfo(1, notification);
 

@@ -4,6 +4,7 @@ import static com.example.myfirstapp.app.CHANNEL_1_ID;
 
 import android.app.Notification;
 import android.content.Context;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
@@ -17,7 +18,7 @@ import com.example.myfirstapp.R;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -48,6 +49,8 @@ public class NotifyWorker extends Worker
         //Notification
         notificationManager = NotificationManagerCompat.from(getApplicationContext());
 
+        Log.i("Notify Worker", "Worker Created");
+
     }
 
     /**
@@ -59,10 +62,12 @@ public class NotifyWorker extends Worker
     public Result doWork()
     {
 
-        System.out.println("Notify Worker");
+        Log.i("Notify Worker", "Worker Started");
 
         //Send a notification telling the user their dryer stopped.
         sendOnChannel1(true);
+
+        Log.i("Notify Worker", "Sent Notification");
 
         //TimerTask has to be setup this way. This will send a notification every few minutes
         TimerTask task = new TimerTask()
@@ -73,20 +78,23 @@ public class NotifyWorker extends Worker
             public void run()
             {
                 sendOnChannel1(false);
-
+                Log.i("Notify Worker", "Sent Reminder Notification");
             }
         };
 
 
         //Find how many minutes based on text file
         String foundText = readFromFile();
-
         int minutes = decideMinutes(foundText);
 
+
+        Log.i("Notify Worker", minutes + " Between Each Notification");
 
         //If minutes equal or less then zero ignore timer task.
         if (minutes > 0)
         {
+            Log.i("Notify Worker", "Notification will Reoccurring");
+
             //Calls the schedule to run ever specified amount. Likely based on ticks. 1000 ticks is 1 second for reference.
             DryerFragment.watch = new Timer();
             DryerFragment.watch.schedule(task, 200, minutesToTicks(minutes));
@@ -94,6 +102,7 @@ public class NotifyWorker extends Worker
 
 
         //Return success since the task is now being run. Will need to cancel work when button is press again.
+        Log.i("Notify Worker", "Worker is a Success");
         return Result.success();
     }
 
@@ -103,7 +112,11 @@ public class NotifyWorker extends Worker
      */
     public void sendOnChannel1(boolean firstCall)
     {
+
         String message;
+
+        Log.i("Notify Worker Channel", "Work is called for the first time?: " + firstCall);
+
 
         //If first call tell user dryer is finished. If any other tell them not to forget their laundry.
         if (firstCall)
@@ -133,6 +146,7 @@ public class NotifyWorker extends Worker
      */
     private long minutesToTicks(int x)
     {
+        Log.i("Notify Worker Ticks", "Method Called");
         //1000 ticks is a second. 60 seconds is a minute.
         return x * 60 * 1000;
     }
@@ -147,6 +161,8 @@ public class NotifyWorker extends Worker
     public String readFromFile()
     {
 
+        Log.i("Notify Worker Read", "Method has started");
+
         //Create the file input stream
         FileInputStream fileInput = null;
 
@@ -154,31 +170,37 @@ public class NotifyWorker extends Worker
         try
         {
             fileInput = getApplicationContext().openFileInput("configNotify.txt"); //Use context to read from text file
+
+            //Take the text file and try to read from it
+            InputStreamReader inputStreamReader = new InputStreamReader(fileInput, StandardCharsets.UTF_8);
+            try (BufferedReader reader = new BufferedReader(inputStreamReader))
+            {
+                Log.i("Notify Worker Read", "Attempt to read from file");
+
+                //Save file line as to a string variable
+                String line = reader.readLine();
+                String textRead = line;
+
+                Log.i("Notify Worker Read", "Notify text found is " + textRead);
+
+                return textRead;
+            }
+            catch (IOException e)
+            {
+                Log.w("Notify Worker Read", "Reading file failed");
+                Log.e("Notify Worker Read", e.toString());
+
+
+            }
         }
         catch (FileNotFoundException e)
         {
-            e.printStackTrace();
+            Log.w("Notify Worker Read", "Finding file failed");
+            Log.e("Notify Worker Read", e.toString());
         }
 
-        //Take the text file and try to read from it
-        InputStreamReader inputStreamReader = new InputStreamReader(fileInput, StandardCharsets.UTF_8);
-        try (BufferedReader reader = new BufferedReader(inputStreamReader))
-        {
-            //Save file line as to a string variable
-            String line = reader.readLine();
-            String textRead = line;
-
-            System.out.println("File Found:" + textRead);
-
-            return textRead;
-        }
-        catch (IOException e)
-        {
-            System.out.println(e);
-            //If error is caught then assume the user does not want this feature
-            return "Never";
-
-        }
+        //If error is caught then assume the user does not want this feature
+        return "Never";
     }
 
     /**
@@ -189,6 +211,8 @@ public class NotifyWorker extends Worker
      */
     private int decideMinutes(String textFound)
     {
+        Log.i("Notify Worker Minutes", "Method Started");
+
         int minutes = 0;
 
         if(textFound.equals("Never"))
@@ -212,6 +236,7 @@ public class NotifyWorker extends Worker
             minutes = 15;
         }
 
+        Log.i("Notify Worker Minutes", "There are " + minutes + " minutes");
         return minutes;
     }
 }

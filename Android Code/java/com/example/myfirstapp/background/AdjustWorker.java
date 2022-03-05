@@ -90,7 +90,7 @@ public class AdjustWorker extends Worker
 
         //Setup the Json String
         String json = "{\"adjust\":" + adjustNumber + "}";
-        Log.i("Adjust Worker API", "JSON Setup as " + adjustNumber);
+        Log.i("Adjust Worker API", "JSON Setup as " + json);
 
         //Model that holds the information to pull data from the API.
         ClientModel piModel = new ClientModel();
