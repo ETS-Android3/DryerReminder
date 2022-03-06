@@ -5,16 +5,16 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.myfirstapp.databinding.FragmentNotifyBinding;
-import com.example.myfirstapp.model.AxesModel;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -34,6 +34,9 @@ public class NotifyFragment extends Fragment
 
     private FragmentNotifyBinding binding;
     private Spinner spinner;
+    TextView notifyText;
+    Button notifyButton;
+    Button backButton;
 
 
     /**
@@ -52,6 +55,9 @@ public class NotifyFragment extends Fragment
     {
         binding = FragmentNotifyBinding.inflate(inflater, container, false);
         spinner = binding.getRoot().findViewById(R.id.spinner);
+
+        notifyText = binding.getRoot().findViewById(R.id.notifyView);
+        backButton = binding.getRoot().findViewById(R.id.notify_back_button);
 
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(),
                 R.array.minutes_array, android.R.layout.simple_spinner_item);
@@ -73,6 +79,9 @@ public class NotifyFragment extends Fragment
      */
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        //Initialize Notify Button
+        notifyButton = view.findViewById(R.id.notify_confirm_button);
 
         //Confirm the time the user wants to be reminded
         view.findViewById(R.id.notify_confirm_button).setOnClickListener(new View.OnClickListener()
@@ -164,12 +173,52 @@ public class NotifyFragment extends Fragment
 
             String contents = stringBuilder.toString();
             System.out.println("File Found:" + textRead);
+            showFinishedProgress();
         }
         catch (IOException e)
         {
+            showFailure();
             System.out.println(e);
 
         }
+
+    }
+
+    /**
+     * Visually change the buttons, text, and anything else on the screen
+     * to show that the phone saved their settings
+     */
+    public void showFinishedProgress()
+    {
+        //Text Changes
+        notifyText.setText("Settings Saved");
+
+        //Might make text color turn more grey and change failed to this red
+        //Notify Button Changes
+        notifyButton.setText("Saved");
+        notifyButton.setBackgroundColor(getResources().getColor(R.color.green_grey));
+
+        //Back Button Changes
+        backButton.setBackgroundColor(getResources().getColor(R.color.green_grey));
+
+    }
+
+    /**
+     * Visually change the buttons, text, and anything else on the screen
+     * to show that the phone failed to save the file.
+     */
+    public void showFailure()
+    {
+
+        //Text Changes
+        notifyText.setText("Failed to Save");
+
+        //Notify Button Changes
+        notifyButton.setText("Error");
+        notifyButton.setBackgroundColor(getResources().getColor(R.color.red_grey));
+
+        //Back Button Changes
+        backButton.setBackgroundColor(getResources().getColor(R.color.red_grey));
 
     }
 
