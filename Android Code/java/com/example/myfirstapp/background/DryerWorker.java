@@ -149,8 +149,8 @@ public class DryerWorker extends Worker
         //The Write/Read Connection is open for a long time since a dryer could take up to two hours to finish.
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
         builder.connectTimeout(1, TimeUnit.MINUTES) // connect timeout
-                .writeTimeout(2, TimeUnit.HOURS) // write timeout
-                .readTimeout(2, TimeUnit.HOURS); // read timeout
+                .writeTimeout(3, TimeUnit.HOURS) // write timeout
+                .readTimeout(3, TimeUnit.HOURS); // read timeout
         client = builder.build();
 
         //Makes the attribute of the request a JSON request
@@ -181,24 +181,24 @@ public class DryerWorker extends Worker
             int statusCode = response.code();
 
             Log.i("Dryer Worker API", "Response status is " + statusCode);
-            Log.i("Adjust Worker API", "Response body is " + response.body());
+            Log.i("Dryer Worker API", "Response body is " + response.body());
 
             //If the API returns a bad response then assume error
             if (statusCode != 200)
             {
                 //Return 1 as a response error
-                Log.e("Adjust Worker API", "Connection was not successful");
+                Log.e("Dryer Worker API", "Connection was not successful");
                 return 1;
             }
 
             //Return a 0 as success
-            Log.e("Adjust Worker API", "Connection was successful");
+            Log.i("Dryer Worker API", "Connection was successful");
             return 0;
 
         }
         catch (IOException e)
         {
-            Log.i("Dryer Worker API", "Connection failed");
+            Log.w("Dryer Worker API", "Connection failed");
             Log.e("Dryer Worker API", e.toString());
 
             //Return 2 as an exception error.

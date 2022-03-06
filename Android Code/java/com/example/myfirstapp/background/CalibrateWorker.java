@@ -2,6 +2,7 @@ package com.example.myfirstapp.background;
 
 import android.content.Context;
 import android.os.StrictMode;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.work.Data;
@@ -46,6 +47,7 @@ public class CalibrateWorker extends Worker
     public CalibrateWorker(@NonNull Context context, @NonNull WorkerParameters workerParams)
     {
         super(context, workerParams);
+        Log.i("Calibrate Worker", "Worker Created");
     }
 
     /**
@@ -57,9 +59,11 @@ public class CalibrateWorker extends Worker
     public Result doWork()
     {
 
+        Log.i("Calibrate Worker", "Worker Started");
+
         //Call connect to API and save error number
         int errorNumber = connectToClient();
-        System.out.println("Work Error Number: " + errorNumber);
+        Log.i("Calibrate Worker", "Error Number is - " + errorNumber);
 
         //Setup data to send the errorNumber.
         Data calibrateOutput = new Data.Builder()
@@ -70,10 +74,12 @@ public class CalibrateWorker extends Worker
         //If error number is zero, return success, else return failure
         if (errorNumber == 0)
         {
+            Log.i("Calibrate Worker", "Worker is a Success");
             return Result.success(calibrateOutput);
         }
         else
         {
+            Log.e("Calibrate Worker", "Worker has Failed From Connection Problems");
             return Result.failure(calibrateOutput);
         }
 
@@ -88,6 +94,8 @@ public class CalibrateWorker extends Worker
      */
     int connectToClient()
     {
+        Log.i("Calibrate Worker API", "Method has started");
+
         //Model that holds the information to pull data from the Client.
         ClientModel piModel = new ClientModel();
 
@@ -96,8 +104,6 @@ public class CalibrateWorker extends Worker
                 .permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
-
-        System.out.println("START OF THE CLICK--------------------------------------");
 
         //Setup OkHttpClient
         OkHttpClient client = new OkHttpClient();
@@ -122,10 +128,14 @@ public class CalibrateWorker extends Worker
                 .addHeader("Authorization", "Bearer " + piModel.getToken()) //Security Token
                 .build();
 
+        Log.i("Calibrate Worker API", "OkHttpClient has been built");
+        Log.i("Calibrate Worker API", "IpAddress - " + piModel.getIpAddress() + " Port - " + piModel.getPort());
+
+
         //Attempt to connect to API.
         try
         {
-            System.out.println("START OF END--------------------------------------");
+            Log.i("Calibrate Worker API", "Attempting to connect to API");
 
             //Execute call.
             Response response = client.newCall(postRequest).execute();
@@ -139,20 +149,22 @@ public class CalibrateWorker extends Worker
             //Convert JSON Object to the AxesModel
             savedAxes = new AxesModel(json.getDouble("axisX"), json.getDouble("axisY"), json.getDouble("axisZ"));
 
+            Log.i("Calibrate Worker API", "Response body is " + response.body());
+            Log.i("Calibrate Worker API", "Axes Model is X: " + savedAxes.getAxisX() + ", Y: " + savedAxes.getAxisY() + ",Z: " + savedAxes.getAxisZ());
 
             //Call the view to save the axes to a text file.
             writeToFile(savedAxes);
 
 
-            System.out.println("END OF THE CLICK--------------------------------------");
 
             //Return 0 meaning the API call and file written succeeded.
+            Log.i("Calibrate Worker API", "Connection was successful");
             return 0;
         }
         catch (IOException | JSONException e)
         {
-            System.out.println("Bad CLICK---------------------------------");
-            e.printStackTrace();
+            Log.w("Calibrate Worker API", "Connection failed");
+            Log.e("Calibrate Worker API", e.toString());
 
             //Return a 1 meaning an error happened.
             return 1;
@@ -166,11 +178,12 @@ public class CalibrateWorker extends Worker
      */
     public void writeToFile(AxesModel savedRange)
     {
-        System.out.println("Write to File-----------------------");
+        Log.i("Calibrate Worker Write", "Method has started");
 
         //Try to write to a text file
         try
         {
+            Log.i("Calibrate Worker Write", "Trying to Write File");
             //Write saved range to config Calibrate text file
             String filename = "configCalibrate.txt";
             String fileContents = (savedRange.getAxisX() + "\n" + savedRange.getAxisY() + "\n" + savedRange.getAxisZ() + "\n");
@@ -181,10 +194,12 @@ public class CalibrateWorker extends Worker
                 fileOutput.write(fileContents.getBytes(StandardCharsets.UTF_8));
             }
 
+            Log.i("Calibrate Worker Write", "File Written");
         }
         catch(IOException e)
         {
-            System.out.println(e);
+            Log.w("Calibrate Worker API", "Writing Failed");
+            Log.e("Calibrate Worker API", e.toString());
         }
 
     }

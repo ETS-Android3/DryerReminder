@@ -35,6 +35,7 @@ public class NotifyWorker extends Worker
 
     //To Manage Notifications
     private NotificationManagerCompat notificationManager;
+    private boolean firstCall = true; //Checks if the device has been called
 
 
     /**
@@ -64,11 +65,6 @@ public class NotifyWorker extends Worker
 
         Log.i("Notify Worker", "Worker Started");
 
-        //Send a notification telling the user their dryer stopped.
-        sendOnChannel1(true);
-
-        Log.i("Notify Worker", "Sent Notification");
-
         //TimerTask has to be setup this way. This will send a notification every few minutes
         TimerTask task = new TimerTask()
         {
@@ -77,8 +73,10 @@ public class NotifyWorker extends Worker
             @Override
             public void run()
             {
-                sendOnChannel1(false);
-                Log.i("Notify Worker", "Sent Reminder Notification");
+
+                    sendOnChannel1(firstCall);
+                    firstCall = false;
+                    Log.i("Notify Worker", "Sent Notification");
             }
         };
 
@@ -88,7 +86,7 @@ public class NotifyWorker extends Worker
         int minutes = decideMinutes(foundText);
 
 
-        Log.i("Notify Worker", minutes + " Between Each Notification");
+        Log.i("Notify Worker", minutes + "Minutes Between Each Notification");
 
         //If minutes equal or less then zero ignore timer task.
         if (minutes > 0)
@@ -108,18 +106,18 @@ public class NotifyWorker extends Worker
 
     /**
      * Send notification to inform user the dryer has stopped.
-     * @param firstCall Determines the message used in the notification bar.
+     * @param firstCalled Determines the message used in the notification bar.
      */
-    public void sendOnChannel1(boolean firstCall)
+    public void sendOnChannel1(boolean firstCalled)
     {
 
         String message;
 
-        Log.i("Notify Worker Channel", "Work is called for the first time?: " + firstCall);
+        Log.i("Notify Worker Channel", "Work is called for the first time?: " + firstCalled);
 
 
         //If first call tell user dryer is finished. If any other tell them not to forget their laundry.
-        if (firstCall)
+        if (firstCalled)
         {
             message = "Your dryer has finished!";
         }
