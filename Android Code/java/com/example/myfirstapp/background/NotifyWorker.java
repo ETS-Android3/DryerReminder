@@ -86,7 +86,7 @@ public class NotifyWorker extends Worker
         int minutes = decideMinutes(foundText);
 
 
-        Log.i("Notify Worker", minutes + "Minutes Between Each Notification");
+        Log.i("Notify Worker", minutes + " Minutes Between Each Notification");
 
         //If minutes equal or less then zero ignore timer task.
         if (minutes > 0)

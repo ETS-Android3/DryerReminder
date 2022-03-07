@@ -234,7 +234,6 @@ public class DryerWorker extends Worker
                 Log.i("Dryer Worker Read", "Attempt to read from file");
 
                 String line = reader.readLine();
-                System.out.println(line);
 
                 //Convert the range to an axesModel
                 savedAxes.setAxisX((Double.parseDouble(line)));
