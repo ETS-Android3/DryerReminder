@@ -27,6 +27,7 @@ public class app extends Application
     {
         super.onCreate();
 
+
         //Used for Notifications
         createNotificationChannels();
     }

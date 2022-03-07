@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +21,7 @@ import com.example.myfirstapp.databinding.FragmentSettingsBinding;
 public class SettingsFragment extends Fragment
 {
 
+    //Binding Fragment Variables
     private FragmentSettingsBinding binding;
 
     /**
@@ -35,6 +37,8 @@ public class SettingsFragment extends Fragment
             @NonNull LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState)
     {
+
+        Log.i("Settings Fragment", "Created");
 
         binding = FragmentSettingsBinding.inflate(inflater, container, false);
         return binding.getRoot();
@@ -89,6 +93,7 @@ public class SettingsFragment extends Fragment
     public void onDestroyView()
     {
         super.onDestroyView();
+        Log.i("Settings Frag Destroy", "Destroyed View");
         binding = null;
     }
 

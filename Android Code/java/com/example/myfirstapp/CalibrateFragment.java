@@ -2,6 +2,7 @@ package com.example.myfirstapp;
 
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,13 +32,15 @@ import java.util.List;
  * accelerometer and save the data to the phone.
  *
  */
-public class CalibrateFragment extends Fragment implements CalibrateContract.View
+public class CalibrateFragment extends Fragment
 {
     //Variables based on front-end items
     private FragmentCalibrateBinding binding;
     private TextView showBasicText;
     private Button calibrateButton;
     private Button backButton;
+
+
 
     //Call Worker and Live Data with Worker Info
     private WorkManager myClientManager;
@@ -58,6 +61,7 @@ public class CalibrateFragment extends Fragment implements CalibrateContract.Vie
             @NonNull LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState)
     {
+        Log.i("Calibrate Fragment", "Created");
 
         //Set to true when user first comes to page
         firstCall = true;
@@ -66,14 +70,10 @@ public class CalibrateFragment extends Fragment implements CalibrateContract.Vie
         myClientManager = WorkManager.getInstance(getActivity().getApplicationContext());
         mySavedWorkerInfo = myClientManager.getWorkInfosByTagLiveData("Calibrate");
 
-
-
-
-        //Binding Fragment for front end items
+        //Binding Fragment and front end items
         binding = FragmentCalibrateBinding.inflate(inflater, container, false);
         showBasicText = binding.getRoot().findViewById(R.id.calibrate_text_view1);
         return binding.getRoot();
-
 
     }
 
@@ -95,22 +95,22 @@ public class CalibrateFragment extends Fragment implements CalibrateContract.Vie
         calibrateButton.setOnClickListener(new View.OnClickListener()
         {
 
-
             @Override
             public void onClick(View view)
             {
+                Log.i("Calibrate Frag Confirm", "Confirm Clicked"); //Fragment shortened to fit in constraint
+
                 //Set to false so device can show in progress to user
                 firstCall = false;
 
                 //Attempt to connect to pi through the Work Manager
                 try
                 {
-
                     //If the version of Android is too old, then prevent the button from running.
                     int SDK_INT = android.os.Build.VERSION.SDK_INT;
                     if (SDK_INT > 8)
                     {
-                        System.out.println("----------------------------Start");
+                        Log.i("Calibrate Frag Confirm", "SDK is Above 8");
 
 
                         //Setup work request using the calibrate worker and tag it under calibrate.
@@ -122,13 +122,14 @@ public class CalibrateFragment extends Fragment implements CalibrateContract.Vie
                         WorkContinuation start = myClientManager.beginUniqueWork("CalibrateDevice", ExistingWorkPolicy.KEEP, calibrateWorker);
                         start.enqueue();
 
+                        Log.i("Calibrate Frag Confirm", "Calibrate Worker Built And Started");
 
-
-                        System.out.println("----------------------------END");
                     }
                     else
                     {
+
                         //Create and show a toast that says the device's SDK is out of date
+                        Log.i("Calibrate Frag Confirm", "SDK is 8 or Below");
                         Toast myToast = Toast.makeText(getActivity(), "Outdated Version. Cannot connect to device", Toast.LENGTH_LONG);
                         myToast.show();
                     }
@@ -136,12 +137,12 @@ public class CalibrateFragment extends Fragment implements CalibrateContract.Vie
                 catch (Exception e)
                 {
                     //If exception is caught show failure to user
-                    System.out.println(e);
                     showFailure();
+                    Log.w("Calibrate Frag Confirm", "Worker Not Started");
+                    Log.e("Calibrate Frag Confirm", e.toString());
                 }
 
-                //Write log here that button finished clicking
-
+                Log.i("Calibrate Frag Confirm", "Confirm Finished");
 
             }
         });
@@ -152,6 +153,7 @@ public class CalibrateFragment extends Fragment implements CalibrateContract.Vie
             @Override
             public void onClick (View view)
             {
+                Log.i("Calibrate Fragment Back", "Back Clicked");
                 NavHostFragment.findNavController(CalibrateFragment.this).navigate(CalibrateFragmentDirections.actionCalibrateFragmentToSettingsFragment());
 
             }
@@ -162,9 +164,12 @@ public class CalibrateFragment extends Fragment implements CalibrateContract.Vie
         mySavedWorkerInfo.observe(getViewLifecycleOwner(), listOfWorkInfos ->
         {
 
+            Log.i("Calibrate Fragment Info", "Calibrate Info Started");
+
             //If work is null or empty then do nothing.
             if (listOfWorkInfos == null || listOfWorkInfos.isEmpty())
             {
+                Log.i("Calibrate Fragment Info", "No Worker Changes Found");
                 return;
             }
 
@@ -174,32 +179,41 @@ public class CalibrateFragment extends Fragment implements CalibrateContract.Vie
             //LiveData persists after it is first updated. This keeps it from updating until getting called first.
             if (!firstCall)
             {
+                Log.i("Calibrate Fragment Info", "Worker Changes Found");
+
                 //Check if background task is finished.
                 boolean finished = workInfo.getState().isFinished();
-                System.out.println(finished);
+
                 if (!finished)
                 {
+                    Log.i("Calibrate Fragment Info", "Worker in progress");
+
                     //Change texts and buttons to show calibrate is in progress
                     showInProgress();
 
                 }
                 else
                 {
+                    Log.i("Calibrate Fragment Info", "Worker Stopped");
+
                     //Pull number from clients output to check for errors
                     int errorNumber = workInfo.getOutputData().getInt("calibrateOutput", 3);
-                    System.out.println(errorNumber);
+
 
                     //Check if the client returned properly
                     if(errorNumber == 0)
                     {
+                        Log.i("Calibrate Fragment Info", "Worker Succeeded");
                         //Change text and buttons to show calibrate has finished.
                         showFinishedProgress();
 
                     }
                     else if (errorNumber == 1)
                     {
+                        Log.w("Calibrate Fragment Info", "Worker Failed");
                         firstCall = true;
-                        //Change texts and buttons to show adjust failed
+
+                        //Change texts and buttons to show calibrate failed
                         showFailure();
 
                     }
@@ -220,22 +234,10 @@ public class CalibrateFragment extends Fragment implements CalibrateContract.Vie
     {
         super.onDestroyView();
         mySavedWorkerInfo.removeObservers(getViewLifecycleOwner());
+        Log.i("Calibrate Frag Destroy", "Destroyed View");
         binding = null;
 
     }
-
-
-    /**
-     * Show error that device is already in use.
-     */
-    @Override
-    public void showInUseError()
-    {
-        //Make toast to tell user device is in use.
-        Toast myToast = Toast.makeText(getActivity(), "Device already in use.", Toast.LENGTH_LONG);
-        myToast.show();
-    }
-
 
     /**
      * Visually change the buttons, text, and anything else on the screen
@@ -243,6 +245,8 @@ public class CalibrateFragment extends Fragment implements CalibrateContract.Vie
      */
     public void showInProgress()
     {
+        Log.i("Calibrate Fragment", "Change View to In Progress");
+
         //Text Changes
         showBasicText.setText("        Device is calibrating  \nDO NOT TOUCH THE DEVICE!");
 
@@ -263,6 +267,8 @@ public class CalibrateFragment extends Fragment implements CalibrateContract.Vie
      */
     public void showFinishedProgress()
     {
+        Log.i("Calibrate Fragment", "Change View to Success");
+
         //Text Changes
         showBasicText.setText("Calibration has finished");
 
@@ -282,11 +288,11 @@ public class CalibrateFragment extends Fragment implements CalibrateContract.Vie
      */
     public void showFailure()
     {
+        Log.i("Calibrate Fragment", "Change View to Failure");
+
         //Text Changes
         showBasicText.setText("Calibration has failed. Make sure device is on.");
 
-
-        //Might make text color turn more grey and change failed to this red
         //Calibrate Button Changes
         calibrateButton.setText("Calibrate");
         calibrateButton.setBackgroundColor(getResources().getColor(R.color.red_grey));

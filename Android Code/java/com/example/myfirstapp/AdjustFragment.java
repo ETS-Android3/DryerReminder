@@ -13,6 +13,7 @@ import androidx.work.WorkContinuation;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -63,6 +64,8 @@ public class AdjustFragment extends Fragment
             Bundle savedInstanceState)
     {
 
+        Log.i("Adjust Fragment", "Created");
+
         //Set to true when user first comes to page
         firstCall = true;
 
@@ -99,19 +102,18 @@ public class AdjustFragment extends Fragment
             @Override
             public void onClick(View view)
             {
-
+                Log.i("Adjust Fragment Confirm", "Confirm Clicked");
                 //Set to false so device can show in progress to user
                 firstCall = false;
 
                 //Attempt to connect to Pi and save the adjust value
                 try
                 {
-
                     //If the version of Android is too old, then prevent the button from running.
                     int SDK_INT = android.os.Build.VERSION.SDK_INT;
                     if (SDK_INT > 8)
                     {
-                        System.out.println("----------------------------Start");
+                        Log.i("Adjust Fragment Confirm", "SDK is Above 8");
 
 
                         //Setup work request using the adjust worker and tag it under adjust.
@@ -124,13 +126,13 @@ public class AdjustFragment extends Fragment
                         WorkContinuation start = myClientManager.beginUniqueWork("Adjusting", ExistingWorkPolicy.KEEP, AdjustWorker);
                         start.enqueue();
 
+                        Log.i("Adjust Fragment Confirm", "Adjust Worker Built And Started");
 
-
-                        System.out.println("----------------------------END");
                     }
                     else
                     {
                         //Create and show a toast that says the device's SDK is out of date
+                        Log.i("Adjust Fragment Confirm", "SDK is 8 or Below");
                         Toast myToast = Toast.makeText(getActivity(), "Outdated Version. Cannot connect to device", Toast.LENGTH_LONG);
                         myToast.show();
                     }
@@ -138,15 +140,21 @@ public class AdjustFragment extends Fragment
                 catch (Exception e)
                 {
                     //If exception is caught show failure to user
-                    System.out.println(e);
                     showFailure();
+                    Log.w("Adjust Fragment Confirm", "Worker Not Started");
+                    Log.e("Adjust Fragment Confirm", e.toString());
+
                 }
-                // put log here
+
+                Log.i("Adjust Fragment Confirm", "Confirm Finished");
             }
         });
 
         //Navigate User to Home Fragment by clicking the Back Button
         binding.adjustBackButton.setOnClickListener(viewBack -> {
+
+            Log.i("Adjust Fragment Back", "Back Clicked");
+
             //Specify the navigation action
             NavHostFragment.findNavController(AdjustFragment.this)
                     .navigate(R.id.action_adjustFragment_to_settingsFragment);
@@ -157,10 +165,11 @@ public class AdjustFragment extends Fragment
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser)
             {
-
+                Log.i("Adjust Fragment Bar", "Seekbar Listened");
 
                 //Add one to the progress since it starts at 0.
                 adjustNumber = progress + 1;
+                Log.i("Adjust Fragment Bar", "Adjust Number is - " + adjustNumber);
 
                 //Based on the bars position, tell the user how sensitive the device will be
                 if(adjustNumber == 1)
@@ -201,9 +210,12 @@ public class AdjustFragment extends Fragment
         //Will show the status when the background task is called
         mySavedWorkerInfo.observe(getViewLifecycleOwner(), listOfWorkInfos -> {
 
+            Log.i("Adjust Fragment Info", "Adjust Info Started");
+
             //If work is null or empty then do nothing.
             if (listOfWorkInfos == null || listOfWorkInfos.isEmpty())
             {
+                Log.i("Adjust Fragment Info", "No Worker Changes Found");
                 return;
             }
 
@@ -213,30 +225,36 @@ public class AdjustFragment extends Fragment
             //LiveData persists after first called. This keeps it from updating until getting called first.
             if (!firstCall)
             {
+                Log.i("Adjust Fragment Info", "Worker Changes Found");
+
                 //Check if background task is finished.
                 boolean finished = workInfo.getState().isFinished();
-                System.out.println(finished);
                 if (!finished)
                 {
+                    Log.i("Adjust Fragment Info", "Worker in progress");
+
                     //Change texts and buttons to show adjust is in progress
                     showInProgress();
 
                 }
                 else
                 {
+                    Log.i("Adjust Fragment Info", "Worker Stopped");
 
                     //Pull number from clients output
                     int errorNumber = workInfo.getOutputData().getInt("adjustOutput", 3);
-                    System.out.println(errorNumber);
 
                     //Check if the client returned properly
                     if(errorNumber == 0)
                     {
+                        Log.i("Adjust Fragment Info", "Worker Succeeded");
+
                         //Change text and buttons to show Adjust has finished.
                         showFinishedProgress();
                     }
                     else if (errorNumber == 1)
                     {
+                        Log.w("Adjust Fragment Info", "Worker Failed");
                         firstCall = true;
                         //Change texts and buttons to show adjust failed
                         adjustText.setText("Adjust failed");
@@ -245,6 +263,7 @@ public class AdjustFragment extends Fragment
                     }
                     else if (errorNumber == 2)
                     {
+                        Log.w("Adjust Fragment Info", "Worker Failed");
                         firstCall = true;
                         //Change texts and buttons to show adjust failed
                         adjustText.setText("Adjust failed. Could not connect to device.");
@@ -267,6 +286,7 @@ public class AdjustFragment extends Fragment
     public void onDestroyView()
     {
         super.onDestroyView();
+        Log.i("Adjust Fragment Destroy", "Destroyed View");
         binding = null;
     }
 
@@ -281,6 +301,8 @@ public class AdjustFragment extends Fragment
         Data.Builder builder = new Data.Builder();
         builder.putInt("adjustSeekbar", adjustNumber);
 
+        Log.i("Adjust Fragment Input", "Adjust Number Built For Worker");
+        Log.i("Adjust Fragment Input", "Adjust Number - " + adjustNumber);
         return builder.build();
     }
 
@@ -290,6 +312,8 @@ public class AdjustFragment extends Fragment
      */
     public void showFinishedProgress()
     {
+        Log.i("Adjust Fragment", "Change View to Success");
+
         //Text Changes
         adjustText.setText("Sensitivity was saved");
 
@@ -310,6 +334,7 @@ public class AdjustFragment extends Fragment
      */
     public void showInProgress()
     {
+        Log.i("Adjust Fragment", "Change View to In Progress");
         //Text Changes
         adjustText.setText("Saving Sensitivity");
 
@@ -330,6 +355,7 @@ public class AdjustFragment extends Fragment
      */
     public void showFailure()
     {
+        Log.i("Adjust Fragment", "Change View to Failure");
 
         //Adjust Button Changes
         adjustButton.setText("Adjust");

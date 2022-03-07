@@ -3,12 +3,14 @@ package com.example.myfirstapp;
 import android.app.Notification;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.fragment.app.Fragment;
@@ -50,9 +52,10 @@ public class HomeFragment extends Fragment
             LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState)
     {
+        Log.i("Home Fragment", "Created");
+
         // Inflate the layout for this fragment
         View fragmentFirstLayout = inflater.inflate(R.layout.fragment_home, container, false);
-
 
 
         return fragmentFirstLayout;
@@ -73,6 +76,8 @@ public class HomeFragment extends Fragment
         {
             @Override
             public void onClick(View view) {
+                Log.i("Home Fragment Settings", "Settings Button Clicked");
+
                 NavHostFragment.findNavController(HomeFragment.this)
                         .navigate(R.id.action_HomeFragment_to_settingsFragment);
             }
@@ -83,11 +88,12 @@ public class HomeFragment extends Fragment
         {
             @Override
             public void onClick(View view) {
+                Log.i("Home Fragment Dryer", "Dryer Button Clicked");
+
                 NavHostFragment.findNavController(HomeFragment.this)
                         .navigate(R.id.action_HomeFragment_to_dryerFragment);
             }
         });
-
 
     }
 
@@ -98,6 +104,7 @@ public class HomeFragment extends Fragment
     public void onDestroyView()
     {
         super.onDestroyView();
+        Log.i("Home Fragment Destroy", "Destroyed View");
         binding = null;
     }
 

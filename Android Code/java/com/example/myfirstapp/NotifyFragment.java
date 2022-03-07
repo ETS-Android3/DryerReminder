@@ -2,6 +2,7 @@ package com.example.myfirstapp;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,12 +17,9 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.myfirstapp.databinding.FragmentNotifyBinding;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
+
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -31,12 +29,12 @@ import java.nio.charset.StandardCharsets;
  */
 public class NotifyFragment extends Fragment
 {
-
+    //Variables based on front-end items
     private FragmentNotifyBinding binding;
     private Spinner spinner;
-    TextView notifyText;
-    Button notifyButton;
-    Button backButton;
+    private TextView notifyText;
+    private Button notifyButton;
+    private Button backButton;
 
 
     /**
@@ -53,19 +51,19 @@ public class NotifyFragment extends Fragment
             Bundle savedInstanceState
     )
     {
-        binding = FragmentNotifyBinding.inflate(inflater, container, false);
-        spinner = binding.getRoot().findViewById(R.id.spinner);
+        Log.i("Notify Fragment", "Created");
 
+        //Binding Fragment and front end items
+        binding = FragmentNotifyBinding.inflate(inflater, container, false);
         notifyText = binding.getRoot().findViewById(R.id.notifyView);
         backButton = binding.getRoot().findViewById(R.id.notify_back_button);
 
+        //Initialize, Define, and Populate the spinner
+        spinner = binding.getRoot().findViewById(R.id.spinner);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(),
                 R.array.minutes_array, android.R.layout.simple_spinner_item);
-
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
         spinner.setAdapter(adapter);
-
 
         return binding.getRoot();
 
@@ -89,7 +87,7 @@ public class NotifyFragment extends Fragment
              @Override
              public void onClick(View view)
              {
-
+                 Log.i("Notify Fragment Confirm", "Confirm Clicked");
                  writeToFile(spinner.getSelectedItem().toString());
              }
          });
@@ -98,6 +96,8 @@ public class NotifyFragment extends Fragment
         //Navigate User to Setting Fragment by clicking the Back Button
         binding.notifyBackButton.setOnClickListener(viewBack ->
         {
+            Log.i("Notify Fragment Back", "Back Clicked");
+
             //Specify the navigation action
             NavHostFragment.findNavController(NotifyFragment.this)
                     .navigate(R.id.action_notifyFragment_to_settingsFragment);
@@ -112,74 +112,42 @@ public class NotifyFragment extends Fragment
     public void onDestroyView()
     {
         super.onDestroyView();
+        Log.i("Notify Fragment Destroy", "Destroyed View");
         binding = null;
     }
 
     /**
-     * FIIIIIXXXXXXXXXXXXXXXXXXX
-     * Take Calibrated range from the Raspberry Pi and save it to a text file to use it later.
-     * Currently reads the same text file to show it has been created. That will be moved to Dryer Fragment later
-     * @param notifyText Save range that was calibrated from pi
+     * Take Text from the spinner save it to a text file to use it later.
+     * @param notifyText String that will be saved to file
      *
      */
     public void writeToFile(String notifyText)
     {
-        System.out.println("Write to File-----------------------");
+        Log.i("Notify Fragment Write", "Method Started");
+        Log.i("Notify Fragment Write", "Spinner Text - " + notifyText);
+
         //Try to write to a text file
         try
         {
-            //Write saved range to config Notify text file
+            Log.i("Notify Fragment Write", "Try to Write to File");
+
+            //Write spinner text to Config Notify text file
             String filename = "configNotify.txt";
             String fileContents = notifyText;
 
-            System.out.println(fileContents);
             try (FileOutputStream fileOutput = getActivity().openFileOutput(filename, Context.MODE_PRIVATE))
             {
                 fileOutput.write(fileContents.getBytes(StandardCharsets.UTF_8));
             }
+            showFinishedProgress();
+            Log.i("Notify Fragment Write", "Write Successful");
 
         }
         catch(IOException e)
         {
-            System.out.println(e);
-        }
-
-        //Reading the file Move to Dryer Later------------------------------
-
-        //Create the file input stream
-        FileInputStream fileInput = null;
-
-        //Try to find text file
-        try
-        {
-            fileInput = getActivity().openFileInput("configNotify.txt"); //Use context to read from text file
-        }
-        catch (FileNotFoundException e)
-        {
-            e.printStackTrace();
-        }
-
-        //Take the text file and try to convert it to an AxesModel
-        InputStreamReader inputStreamReader = new InputStreamReader(fileInput, StandardCharsets.UTF_8);
-        StringBuilder stringBuilder = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(inputStreamReader))
-        {
-            String line = reader.readLine();
-            System.out.println(line);
-
-            //Convert the range to an axesModel
-            String textRead = line;
-
-
-            String contents = stringBuilder.toString();
-            System.out.println("File Found:" + textRead);
-            showFinishedProgress();
-        }
-        catch (IOException e)
-        {
             showFailure();
-            System.out.println(e);
-
+            Log.w("Notify Fragment Write", "Write Failed");
+            Log.e("Notify Fragment Write", e.toString());
         }
 
     }
@@ -190,6 +158,8 @@ public class NotifyFragment extends Fragment
      */
     public void showFinishedProgress()
     {
+        Log.i("Notify Fragment", "Change View to Success");
+
         //Text Changes
         notifyText.setText("Settings Saved");
 
@@ -209,6 +179,7 @@ public class NotifyFragment extends Fragment
      */
     public void showFailure()
     {
+        Log.i("Notify Fragment", "Change View to Failed");
 
         //Text Changes
         notifyText.setText("Failed to Save");
@@ -221,7 +192,6 @@ public class NotifyFragment extends Fragment
         backButton.setBackgroundColor(getResources().getColor(R.color.red_grey));
 
     }
-
 
 }
 
