@@ -65,6 +65,9 @@ public class NotifyWorker extends Worker
 
         Log.i("Notify Worker", "Worker Started");
 
+        sendOnChannel1(true);
+        Log.i("Notify Worker", "Sent First Notification");
+
         //TimerTask has to be setup this way. This will send a notification every few minutes
         TimerTask task = new TimerTask()
         {
@@ -74,9 +77,12 @@ public class NotifyWorker extends Worker
             public void run()
             {
 
-                    sendOnChannel1(firstCall);
-                    firstCall = false;
-                    Log.i("Notify Worker", "Sent Notification");
+                if(!firstCall)
+                {
+                    sendOnChannel1(false);
+                    Log.i("Notify Worker", "Sent Reminder Notification");
+                }
+                firstCall = false;
             }
         };
 
