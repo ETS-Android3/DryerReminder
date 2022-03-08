@@ -177,8 +177,9 @@ public class DryerFragment extends Fragment
                     //Use finished progress, but add a few changes below.
                     showFinishedProgress();
 
-                    //Change button text
+                    //Change button text and allow user to go back now
                     dryerButton.setText("Start");
+                    backButton.setEnabled(true);
 
                     //Cancels work
                     WorkManager.getInstance(getActivity()).cancelAllWorkByTag("Dryer");
@@ -286,7 +287,12 @@ public class DryerFragment extends Fragment
     public void onDestroyView()
     {
         super.onDestroyView();
+
         Log.i("Dryer Frag Destroy", "Destroyed View");
+        //Cancels work and Timer
+        WorkManager.getInstance(getActivity()).cancelAllWorkByTag("Dryer");
+        WorkManager.getInstance(getActivity()).cancelAllWorkByTag("Notify");
+        watch.cancel();
         binding = null;
     }
 
@@ -308,7 +314,6 @@ public class DryerFragment extends Fragment
 
         //Back Button Changes
         backButton.setBackgroundColor(getResources().getColor(R.color.green_grey));
-        backButton.setEnabled(true);
     }
 
     /**
