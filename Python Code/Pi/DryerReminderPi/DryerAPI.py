@@ -1,6 +1,6 @@
 """ The API that will be used to control the Services on the Raspberry Pi Application.
 There will be 3 to 4 URL's for controling the adjust, calibrating, and dryer/washer service.
-Flask is used to setup these URL's. Jsonify is used to sent data over the API. Make_Response allows
+Flask is used to setup these URL's. Jsonify is used to send data over the API. Make_Response allows
 for the program to define which response status code is sent.
 
 Author: Michael Mohler
@@ -21,7 +21,6 @@ import CalibrateService
 import AxesModel
 
 
-
 #Intialize the varaibles for handling the ipAddress, port, and the sercurity token.
 IPADDRESS = '192.168.0.23'
 PORT = "7069"
@@ -36,9 +35,10 @@ auth = HTTPTokenAuth(scheme='Bearer')
 logging.basicConfig(filename='dryer.log',
     format='%(asctime)s-%(levelname)s-%(message)s', level=logging.DEBUG)
 
-#Method use to verify token for security
+#Method used to verify token for security
 @auth.verify_token
 def verify_token(token):
+    #If token is correct then allow access to the API if not then deny it.
     if token == TOKEN:
         logging.debug("API - Access Authorized:")
         return True
@@ -47,7 +47,7 @@ def verify_token(token):
         return False
 
 class Dryer(Resource):
-    """Dryer Class for starting the dryer process after taking in the saved AxesModel values
+    """Dryer Class for starting the dryer process after taking in the saved AxesModel range
     Returns a response status code to let the user know when thier dryer has stopped moving"""
 
     @classmethod
@@ -90,7 +90,7 @@ class Dryer(Resource):
 
 class Washer(Resource):
     """Washer Class for starting the Washer process after taking in the saved AxesModel values
-    Returns a response status code to let the user know when thier washer has stopped moving"""
+    Returns a string that says washer. Will be removed in the next release"""
 
     @classmethod
     @auth.login_required
@@ -112,13 +112,15 @@ class Washer(Resource):
 
 
 class Calibrate(Resource):
-    """#Calibrate the accelerometer by saving the axes and sending the results back over JSON
+    """#Calibrate the accelerometer by finding the axes when the device does not move 
+        and sending the results back over JSON.
+
     Returns a response status code and JSON of the Axes model"""
 
     @classmethod
     @auth.login_required
     def post(cls):
-        """Post for Calibrate
+        """Post for Calibrate. Despite being a post, does not take in any data.
 
         Return: JSON and Response status"""
 
@@ -141,12 +143,16 @@ class Calibrate(Resource):
 
 class Adjust(Resource):
     """Update the offset to better detect when the device is or is not moving.
+        Takes in a Json value of the number and calls the method from DryerLibrary directly. 
+        Then send a response value of the string Adjust
+
     Returns a response status code"""
 
     @classmethod
     @auth.login_required
     def post(cls):
-        """Post for Adjust
+        """Post for Adjust, takes in the adjust number and calls method to have 
+            it saved to a text file.
 
         Return: JSON and Response status"""
 

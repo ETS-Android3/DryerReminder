@@ -37,19 +37,21 @@ logging.basicConfig(filename='dryer.log',
 
 
 def append_axes(AxesModel):
-    """Adds values in the x, y, and z arrays at the same time.
+    """Adds values from the x, y, and z AxesModel object to the global Array.
     
-    Arg: Current x,y,and z value from accelerometer"""
+    Arg: Current x,y,and z value, in an AxesModel object,from the accelerometer"""
     
     logging.debug("     ~ Append Axis X: %s Axis Y: %s Axis Z: %s", AxesModel.get_axis_x(),AxesModel.get_axis_y(), AxesModel.get_axis_z())
     axes.append(AxesModel)
 
 
 def array_range(axis_a):
-    """Get's range of the axes array inserted.
+    """Gets the range of the axes array inserted by running a for each 
+        loop to find the highest and lowest value. The range is the 
+        highest value of each axis subtracted by the lowest value.
     
-    Arg: Array of AxesModel
-    Return: AxesModel of the range"""
+    Arg: axis_a Array of AxesModel populated with axis values from the past few seconds
+    Return: found_range AxesModel of the range found from each axis"""
 
     #initalize the varible for the largest and smallest values of
     high_x = axis_a[0].get_axis_x()
@@ -103,7 +105,8 @@ def array_range(axis_a):
 
 
 def array_calc_ranges():
-    """Save the ranges of the axis arrays to their ranges and clear them."""
+    """Takes the data from the current array and calls a method that will calculate the 
+        range. Clear that array of data afterwards."""
 
     #Define the global variables so they can be looked at outside of the function.
     global range_axes
@@ -117,7 +120,9 @@ def array_calc_ranges():
 
 
 def array_size_check():
-    """If one of the arrays are equal to or more then"""
+    """If the array is equal to or more then the size of the constant, 
+        then call a method that will calculate the range and clear 
+        the array for future checks"""
 
     if len(axes) >= SIZE:
         array_calc_ranges()
@@ -125,7 +130,9 @@ def array_size_check():
 
 
 def set_offset(new_offset):
-    """Save the offset to a file so the Pi will always remember it
+    """Save the offset to a file so the device will always have it.
+    This will be called from the API.
+
     Arg: Float of the offset the user wants"""
     
     #Opens file to write adjust number to it.
@@ -144,8 +151,10 @@ def set_offset(new_offset):
 
 
 def get_offset():
-    """Read the offset from the config.txt file
-    Return: Float of the offset"""
+    """Read the offset from the config.txt file. Defaults to a 3 when no file is found.
+        Called from within the method.
+
+    Return: Float of the offset used to determine the sensitivity of the shake detection"""
     
     logging.debug("Pulling Adjust to config file")
     try:
@@ -163,8 +172,11 @@ def get_offset():
 
 
 def calibrate():
-    """Calibrate the range of the accelerometer when it is not moving
-    Return: AxesModel of the range"""
+    """Calibrate the range of the accelerometer when it is not moving. It does this 
+    by recording the movement of each axis every .2 sleep cycles and adding them to 
+    an array. The size the array will get before calculating the range is based on a constant.
+
+    Return: AxesModel of the range when the device is not moving"""
     
     logging.debug("Starting: Calibration Check")
     print("Starting: Calibration Check")
@@ -196,7 +208,10 @@ def calibrate():
 
 
 def justMain(given_range):
-    """Compare the range of the accelerometer to the range when it is not moving
+    """The main feature of the device. Take the saved ranged from calibrate and add an offset to determine sensitivity. 
+    Save the movmemnt of the accelorometer every .2 sleep cycles. Once the array hits the SIZE constant, find the range.
+    Compare the range of the accelerometer to the range when it was not moving to determine if the device is moving.
+
     Args: AxesModel of the calibrated saved range"""
 
     count_check = 0
@@ -221,7 +236,7 @@ def justMain(given_range):
     sense = SenseHat()
     sense.clear()
 
-    #Constantly
+    #Constantly record movememnt and compare it to the saved range.
     while True:
         axies = sense.get_accelerometer_raw()
         append_axes(AxesModel.AxesModel(axies['x'], axies['y'], axies['z']))
@@ -253,6 +268,6 @@ def justMain(given_range):
 #Main Method
 if __name__ == '__main__':
     #calibrate()
-    #justMain(AxesModel.AxesModel(.02, .004, .06))
-    while True:
-        justMain(calibrate())
+    justMain(AxesModel.AxesModel(.0027, .0029, .0040))
+    #while True:
+    #    justMain(calibrate())

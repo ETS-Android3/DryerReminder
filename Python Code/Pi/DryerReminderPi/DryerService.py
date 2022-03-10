@@ -20,7 +20,10 @@ class DryerService:
 
     def dryer_check(saved_range):
         """Calls the library service with the saved ranges.
-        I would like to move the offset here later"""
+        I would like to move the offset here later
+
+        Arg: saved_range Range of the Pi when not moving
+        """
 
         logging.debug("Start - Dryer Service")
         DryerLibrary.justMain(saved_range)
