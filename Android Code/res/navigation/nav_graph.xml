@@ -16,6 +16,9 @@
         <action
             android:id="@+id/action_HomeFragment_to_dryerFragment"
             app:destination="@id/dryerFragment" />
+        <action
+            android:id="@+id/action_HomeFragment_to_calibrateFragment"
+            app:destination="@id/calibrateFragment" />
     </fragment>
     <fragment
         android:id="@+id/calibrateFragment"
