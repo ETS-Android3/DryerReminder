@@ -3,6 +3,7 @@ package com.example.myfirstapp;
 import android.app.Application;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -45,7 +46,11 @@ public class app extends Application
                     "Channel 1",
                     NotificationManager.IMPORTANCE_HIGH
             );
+
             channel1.setDescription("This is Channel 1");
+            channel1.enableLights(true);
+            channel1.setLightColor(Color.BLUE);
+
 
             NotificationChannel channel2 = new NotificationChannel(
                     CHANNEL_2_ID,
