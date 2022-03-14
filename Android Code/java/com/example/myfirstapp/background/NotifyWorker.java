@@ -1,12 +1,18 @@
 package com.example.myfirstapp.background;
 
+import static android.content.Context.VIBRATOR_SERVICE;
 import static com.example.myfirstapp.app.CHANNEL_1_ID;
 
 import android.app.Notification;
 import android.content.Context;
+import android.graphics.Color;
+import android.os.Build;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.work.Worker;
@@ -36,6 +42,8 @@ public class NotifyWorker extends Worker
     //To Manage Notifications
     private NotificationManagerCompat notificationManager;
     private boolean firstCall = true; //Checks if the device has been called
+    //Initialize a Vibrate Function
+    private Vibrator vibrator;
 
 
     /**
@@ -49,6 +57,9 @@ public class NotifyWorker extends Worker
 
         //Notification
         notificationManager = NotificationManagerCompat.from(getApplicationContext());
+
+        //Vibrate Function
+        vibrator = (Vibrator) getApplicationContext().getSystemService(VIBRATOR_SERVICE);
 
         Log.i("Notify Worker", "Worker Created");
 
@@ -66,7 +77,12 @@ public class NotifyWorker extends Worker
         Log.i("Notify Worker", "Worker Started");
 
         sendOnChannel1(true);
+        vibrator.vibrate(500); //Vibrate
         Log.i("Notify Worker", "Sent First Notification");
+
+
+
+
 
         //TimerTask has to be setup this way. This will send a notification every few minutes
         TimerTask task = new TimerTask()
@@ -80,6 +96,7 @@ public class NotifyWorker extends Worker
                 if(!firstCall)
                 {
                     sendOnChannel1(false);
+                    vibrator.vibrate(500); //Vibrate
                     Log.i("Notify Worker", "Sent Reminder Notification");
                 }
                 firstCall = false;
@@ -114,6 +131,7 @@ public class NotifyWorker extends Worker
      * Send notification to inform user the dryer has stopped.
      * @param firstCalled Determines the message used in the notification bar.
      */
+
     public void sendOnChannel1(boolean firstCalled)
     {
 
@@ -138,7 +156,11 @@ public class NotifyWorker extends Worker
                 .setContentText(message)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setCategory(NotificationCompat.CATEGORY_MESSAGE)
+
+
+
                 .build();
+
 
         notificationManager.notify(1, notification);
     }
