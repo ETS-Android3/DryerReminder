@@ -24,6 +24,12 @@ import com.example.myfirstapp.background.CalibrateWorker;
 import com.example.myfirstapp.databinding.FragmentCalibrateBinding;
 import com.example.myfirstapp.presenter.CalibrateContract;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 
@@ -37,6 +43,7 @@ public class CalibrateFragment extends Fragment
     //Variables based on front-end items
     private FragmentCalibrateBinding binding;
     private TextView showBasicText;
+    private TextView showBasicText2;
     private Button calibrateButton;
     private Button backButton;
 
@@ -73,6 +80,13 @@ public class CalibrateFragment extends Fragment
         //Binding Fragment and front end items
         binding = FragmentCalibrateBinding.inflate(inflater, container, false);
         showBasicText = binding.getRoot().findViewById(R.id.calibrate_text_view1);
+        showBasicText2 = binding.getRoot().findViewById(R.id.calibrate_text_view2);
+
+        if(readFromFile() == 0)
+        {
+            showBasicText2.setVisibility(View.VISIBLE);
+        }
+
         return binding.getRoot();
 
     }
@@ -303,6 +317,57 @@ public class CalibrateFragment extends Fragment
         backButton.setEnabled(true);
     }
 
+    /**
+     * Find calibrated range from a text file and return a number based on the result.
+     * Will save it to the savedRange variable.
+     *
+     */
+    private int readFromFile()
+    {
+        Log.i("Home Fragment Read", "Method has started");
+
+
+        //Create the file input stream
+        FileInputStream fileInput = null;
+
+        //Try to find text file
+        try
+        {
+            Log.i("Home Fragment Read", "Attempt to find file");
+            fileInput = getActivity().openFileInput("configCalibrate.txt"); //Use context to read from text file
+
+            //Take the text file and try to convert it to an AxesModel
+            InputStreamReader inputStreamReader = new InputStreamReader(fileInput, StandardCharsets.UTF_8);
+            try (BufferedReader reader = new BufferedReader(inputStreamReader))
+            {
+                Log.i("Home Fragment Read", "Attempt to read from file");
+
+                String line = reader.readLine();
+
+
+
+                Log.i("Home Fragment Read", "Text on file found");
+
+            }
+            catch (IOException e)
+            {
+                Log.w("Home Fragment Read", "Reading file failed");
+                Log.e("Home Fragment Read", e.toString());
+
+                return 1;
+            }
+
+        }
+        catch (FileNotFoundException e)
+        {
+            Log.w("Dryer Worker Read", "Finding file failed");
+            Log.e("Dryer Worker Read", e.toString());
+            return 1;
+        }
+
+        return 0;
+
+    }
 
 
 }
