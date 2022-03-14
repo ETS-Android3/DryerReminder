@@ -149,6 +149,8 @@ public class NotifyWorker extends Worker
         {
             message = "Don't forget your laundry!";
         }
+        
+
         String title = "Dryer Reminder";
         Notification notification = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_1_ID)
                 .setSmallIcon(R.drawable.ic_one)
@@ -156,8 +158,6 @@ public class NotifyWorker extends Worker
                 .setContentText(message)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setCategory(NotificationCompat.CATEGORY_MESSAGE)
-
-
 
                 .build();
 
