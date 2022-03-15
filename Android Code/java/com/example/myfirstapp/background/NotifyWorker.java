@@ -149,7 +149,7 @@ public class NotifyWorker extends Worker
         {
             message = "Don't forget your laundry!";
         }
-        
+
 
         String title = "Dryer Reminder";
         Notification notification = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_1_ID)
@@ -160,7 +160,6 @@ public class NotifyWorker extends Worker
                 .setCategory(NotificationCompat.CATEGORY_MESSAGE)
 
                 .build();
-
 
         notificationManager.notify(1, notification);
     }

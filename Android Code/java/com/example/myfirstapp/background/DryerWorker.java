@@ -1,6 +1,6 @@
 package com.example.myfirstapp.background;
 
-import static com.example.myfirstapp.app.CHANNEL_1_ID;
+import static com.example.myfirstapp.app.CHANNEL_2_ID;
 
 import android.app.Notification;
 import android.content.Context;
@@ -275,7 +275,7 @@ public class DryerWorker extends Worker
 
         String title = "Dryer Reminder";
         String message = "Your Dryer detection has started!";
-        Notification notification = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_1_ID)
+        Notification notification = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_2_ID)
                 .setSmallIcon(R.drawable.ic_one)
                 .setContentTitle(title)
                 .setContentText(message)
