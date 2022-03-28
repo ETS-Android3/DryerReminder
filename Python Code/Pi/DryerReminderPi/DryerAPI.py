@@ -8,6 +8,7 @@ Data: 12/07/21
 Version: 1
 """
 import logging
+import logging.handlers as handlers
 
 from flask import Flask, jsonify, make_response, request
 from flask_restful import Resource, Api
@@ -34,16 +35,19 @@ auth = HTTPTokenAuth(scheme='Bearer')
 #Logging Configure
 logging.basicConfig(filename='dryer.log',
     format='%(asctime)s-%(levelname)s-%(message)s', level=logging.DEBUG)
+logger = logging.getLogger('DryerAPI')
+logHandler = handlers.RotatingFileHandler('dryer.log', maxBytes=1000000, backupCount=1)
+logger.addHandler(logHandler)
 
 #Method used to verify token for security
 @auth.verify_token
 def verify_token(token):
     #If token is correct then allow access to the API if not then deny it.
     if token == TOKEN:
-        logging.debug("API - Access Authorized:")
+        logger.debug("API - Access Authorized:")
         return True
     else:
-        logging.debug("API - Access Not Authorized:")
+        logger.debug("API - Access Not Authorized:")
         return False
 
 class Dryer(Resource):
@@ -57,7 +61,7 @@ class Dryer(Resource):
 
         Return: JSON and Response status"""
 
-        logging.debug("Start - Dryer API")
+        logger.debug("Start - Dryer API")
         print("Start - Dryer API")
 
         try:
@@ -68,23 +72,23 @@ class Dryer(Resource):
             axis_y = 0 + json_data['axisY']
             axis_z = 0 + json_data['axisZ']
 
-            logging.debug("DryerAPI - Axes Range is:")
+            logger.debug("DryerAPI - Axes Range is:")
             axes = AxesModel.AxesModel(axis_x, axis_y, axis_z)
-            logging.debug('Axis X: %s Axis Y: %s Axis Z: %s', axis_x, axis_y, axis_z)
+            logger.debug('Axis X: %s Axis Y: %s Axis Z: %s', axis_x, axis_y, axis_z)
 
             #The dryer service is called with which saved range to use
             DryerService.DryerService.dryer_check(axes)
 
             print("End - Dryer API")
             print()
-            logging.debug("End - Dryer API")
+            logger.debug("End - Dryer API")
 
             return make_response(jsonify(axes.to_json()), 200)
         except TypeError:
-            logging.error("Invalid input, object was invalid")
+            logger.error("Invalid input, object was invalid")
             return make_response("Invalid input, object was invalid", 400)
         except:
-            logging.error("Unknown Error")
+            logger.error("Unknown Error")
             return make_response("System Error", 500)
 
 
@@ -100,13 +104,13 @@ class Washer(Resource):
         Return: JSON and Response status"""
 
         print("Start - Washer API")
-        logging.debug("Start - Washer API")
+        logger.debug("Start - Washer API")
 
-        #WasherService.washerCheck()
+        DryerLibrary.set_moving_false()
 
         print("End - Washer API")
         print()
-        logging.debug("End - Dryer API")
+        logger.debug("End - Dryer API")
 
         return  make_response("Washer", 200)
 
@@ -124,7 +128,7 @@ class Calibrate(Resource):
 
         Return: JSON and Response status"""
 
-        logging.debug("Start - Calibrate API")
+        logger.debug("Start - Calibrate API")
         print("Start - Calibrate API")
 
         #Try to call the calibrate service and return the range
@@ -132,12 +136,12 @@ class Calibrate(Resource):
             #This will return an axes model of the range for when the device is not moving
             axes = CalibrateService.CalibrateService.calibrate_range()
 
-            logging.debug("End - Calibrate API")
+            logger.debug("End - Calibrate API")
             print("End - Calibrate API")
             print()
             return make_response(jsonify(axes.to_json()), 200) #Returns the axes in JSON
         except:
-            logging.error("Unknown Error")
+            logger.error("Unknown Error")
             return make_response("Error", 400)   #An error has happened
 
 
@@ -156,7 +160,7 @@ class Adjust(Resource):
 
         Return: JSON and Response status"""
 
-        logging.debug("Start - Adjust API")
+        logger.debug("Start - Adjust API")
         print("Start - Adjust API")
 
         try:
@@ -166,23 +170,23 @@ class Adjust(Resource):
 
             #Checks if the offset is between 0 and 5
             if (offset < 0) or (offset > 5):
-                logging.error("Invalid input %s", offset)
-                logging.error("Needs to be between 0 and 5")
+                logger.error("Invalid input %s", offset)
+                logger.error("Needs to be between 0 and 5")
                 return make_response("Invalid input, needs to be between 0 and 5", 400)
 
             print("Adjust Number is ", offset)
             DryerLibrary.set_offset(offset)
 
-            logging.debug("End - Adjust API")
+            logger.debug("End - Adjust API")
             print("End - Adjust API")
             print()
             return make_response("Adjust", 200)
 
         except TypeError:
-            logging.error("Invalid input, object was invalid")
+            logger.error("Invalid input, object was invalid")
             return make_response("Invalid input, object was invalid", 400)
         except:
-            logging.error("Unknown Error")
+            logger.error("Unknown Error")
             return make_response("System Error", 500)
 
 

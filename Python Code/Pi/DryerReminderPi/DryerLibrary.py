@@ -14,12 +14,16 @@
 
 import time #For the sleep command
 
-import logging #Logging
+#Logging
+import logging 
+import logging.handlers as handlers
 
 #Let's IMU reed from the excelerameter
 from sense_hat import SenseHat
 import AxesModel
 
+#Is the Dryer Moving?
+moving = False
 
 #Size of the array
 SIZE = 60
@@ -34,6 +38,9 @@ range_axes = AxesModel.AxesModel(0,0,0)
 #Logging Configure
 logging.basicConfig(filename='dryer.log',
     format='%(asctime)s-%(levelname)s-%(message)s', level=logging.DEBUG)
+logger = logging.getLogger('DryerLibrary')
+logHandler = handlers.RotatingFileHandler('dryer.log', maxBytes=1000000, backupCount=1)
+logger.addHandler(logHandler)
 
 
 def append_axes(AxesModel):
@@ -41,7 +48,7 @@ def append_axes(AxesModel):
     
     Arg: Current x,y,and z value, in an AxesModel object,from the accelerometer"""
     
-    logging.debug("     ~ Append Axis X: %s Axis Y: %s Axis Z: %s", AxesModel.get_axis_x(),AxesModel.get_axis_y(), AxesModel.get_axis_z())
+    logger.debug("     ~ Append Axis X: %s Axis Y: %s Axis Z: %s", AxesModel.get_axis_x(),AxesModel.get_axis_y(), AxesModel.get_axis_z())
     axes.append(AxesModel)
 
 
@@ -98,7 +105,7 @@ def array_range(axis_a):
     print("Range Y: ", range_y)
     print("Range Z: ", range_z)
     print()
-    logging.debug("Range: X: %s Y: %s Z: %s", range_x, range_y, range_z)
+    logger.debug("Range: X: %s Y: %s Z: %s", range_x, range_y, range_z)
 
     return found_range
 
@@ -115,7 +122,7 @@ def array_calc_ranges():
 
     #Clear the array for the next set
     axes.clear()
-    logging.debug("Axes Array was cleared")
+    logger.debug("Axes Array was cleared")
 
 
 
@@ -136,19 +143,30 @@ def set_offset(new_offset):
     Arg: Float of the offset the user wants"""
     
     #Opens file to write adjust number to it.
-    logging.debug("Saving Adjust to config file")
+    logger.debug("Saving Adjust to config file")
 
     try:
         with open('config.txt', 'w', encoding='utf8') as file:
             file.write(str(new_offset))
             file.close()
-            logging.debug("Offset: %s saved", new_offset)
+            logger.debug("Offset: %s saved", new_offset)
 
     except IOError:
-        logging.error("File could not be read")
+        logger.error("File could not be read")
         raise Exception("File could not be made")
 
+def set_moving_false():
+    """Set the moving value to false since dryer isn't moving"""
+    global moving
+    moving = False
+    print("changed to false")
 
+def get_moving():
+    """Get the value that determines if the dryer is moving
+
+    Return: Status of dryer in a boolean variable"""
+    
+    return moving
 
 def get_offset():
     """Read the offset from the config.txt file. Defaults to a 3 when no file is found.
@@ -156,16 +174,16 @@ def get_offset():
 
     Return: Float of the offset used to determine the sensitivity of the shake detection"""
     
-    logging.debug("Pulling Adjust to config file")
+    logger.debug("Pulling Adjust to config file")
     try:
         with open("config.txt", encoding='utf8') as file:
             data = file.read()
             file.close()
-            logging.debug("Offset: %s retrieved", data)
+            logger.debug("Offset: %s retrieved", data)
             return int(data)
 
     except IOError:
-        logging.warning("File could not be found. Adjust defaulting to 3")
+        logger.warning("File could not be found. Adjust defaulting to 3")
         print("File could not be found. Adjust defaulting to 3")
         return 3
 
@@ -178,7 +196,7 @@ def calibrate():
 
     Return: AxesModel of the range when the device is not moving"""
     
-    logging.debug("Starting: Calibration Check")
+    logger.debug("Starting: Calibration Check")
     print("Starting: Calibration Check")
     print("")
 
@@ -202,7 +220,7 @@ def calibrate():
     saved_range_z = range_axes.get_axis_z()
 
     print("Ending: Calibration Check")
-    logging.debug("Ending: Calibration Check")
+    logger.debug("Ending: Calibration Check")
     return AxesModel.AxesModel(saved_range_x, saved_range_y, saved_range_z)
 
 
@@ -216,8 +234,9 @@ def justMain(given_range):
 
     count_check = 0
     global saved_range
+    global moving
 
-    logging.debug("Starting: Shake Detection")
+    logger.debug("Starting: Shake Detection")
     print("Starting: Shake Detection")
 
     offset = get_offset()
@@ -227,10 +246,12 @@ def justMain(given_range):
     saved_range_y = given_range.get_axis_y() + (given_range.get_axis_y() * offset)
     saved_range_z = given_range.get_axis_z() + (given_range.get_axis_z() * offset)
 
-    logging.debug("Saved Range with offset Axis X: %s Axis Y: %s Axis Z: %s", saved_range_x, saved_range_y, saved_range_z)
+    logger.debug("Saved Range with offset Axis X: %s Axis Y: %s Axis Z: %s", saved_range_x, saved_range_y, saved_range_z)
 
     saved_range = AxesModel.AxesModel(saved_range_x, saved_range_y, saved_range_z)
     
+    #Change status of dryer to moving
+    moving = True
 
     #Setup IMU
     sense = SenseHat()
@@ -243,27 +264,31 @@ def justMain(given_range):
         array_size_check()
         time.sleep(.2)
 
+        #If dryer moving status is false then stop loop
+        if (moving == False):
+            break
+        
         if len(axes) == 0:
             #Check if dryer is moving or not.
             if (range_axes.get_axis_x() >= saved_range.get_axis_x()) or (range_axes.get_axis_y() >= saved_range.get_axis_y()) or (range_axes.get_axis_z() >= saved_range.get_axis_z()):
                 print("==Dryer is moving==")
-                logging.debug("==Dryer is moving==")
+                logger.debug("==Dryer is moving==")
                 count_check = 0
             else:
                 print("==Dryer is not moving==")
                 print()
-                logging.debug("==Dryer is not moving==")
+                logger.debug("==Dryer is not moving==")
                 count_check = count_check + 1
                 if count_check == 2:
                     print("===Dryer has stopped===")
-                    logging.debug("===Dryer has stopped===")
+                    logger.debug("===Dryer has stopped===")
                     break
 
 
 
     print("")
     print("Ending: Shake Detection")
-    logging.debug("Ending: Shake Detection")
+    logger.debug("Ending: Shake Detection")
 
 #Main Method
 if __name__ == '__main__':
