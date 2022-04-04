@@ -19,6 +19,9 @@
         <action
             android:id="@+id/action_HomeFragment_to_calibrateFragment"
             app:destination="@id/calibrateFragment" />
+        <action
+            android:id="@+id/action_HomeFragment_to_dryer_oldFragment"
+            app:destination="@id/dryerOldFragment" />
     </fragment>
     <fragment
         android:id="@+id/calibrateFragment"
@@ -72,6 +75,14 @@
         tools:layout="@layout/fragment_dryer" >
         <action
             android:id="@+id/action_dryerFragment_to_HomeFragment"
+            app:destination="@id/HomeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/dryerOldFragment"
+        android:name="com.example.myfirstapp.DryerOldFragment"
+        android:label="DryerOldFragment">
+        <action
+            android:id="@+id/action_dryer_oldFragment_to_HomeFragment"
             app:destination="@id/HomeFragment" />
     </fragment>
 </navigation>
