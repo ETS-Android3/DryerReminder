@@ -7,7 +7,6 @@ import android.content.Context;
 import android.os.StrictMode;
 import android.util.Log;
 
-
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import androidx.work.Data;
@@ -19,7 +18,6 @@ import androidx.work.WorkerParameters;
 import com.example.myfirstapp.R;
 import com.example.myfirstapp.model.AxesModel;
 import com.example.myfirstapp.model.ClientModel;
-import com.example.myfirstapp.model.DryerWebSocketListener;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -34,15 +32,14 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import okhttp3.WebSocket;
 
 
 /**
- * Worker to be used by the Dryer Fragment. This will send the saved range from calibrate to determine when the dryer stops.
- * This is done with a WebSocket API that also sends a variable that tells the Pi which process to run.
+ * Worker to be used by the Dryer Fragment. This will send the saved range from calibrate to ditirmine when the dryer stops.
+ * If the API returns the same data that was sent it then the dryer has stopped.
  * This must be ran as a Foreground asynchronous task, since the call to the Pi may last more then 10 minutes.
  */
-public class DryerWorker extends Worker
+public class DryerOldWorker extends Worker
 {
 
     /**
@@ -50,7 +47,7 @@ public class DryerWorker extends Worker
      * @param context Important details about the user's phone needed to run certain methods
      * @param workerParams Details about the worker
      */
-    public DryerWorker(@NonNull Context context, @NonNull WorkerParameters workerParams)
+    public DryerOldWorker(@NonNull Context context, @NonNull WorkerParameters workerParams)
     {
         super(context, workerParams);
         Log.i("Dryer Worker", "Created");
@@ -70,7 +67,7 @@ public class DryerWorker extends Worker
         //Read Saved Range from file and save it to savedAxes
         AxesModel savedAxes = readFromFile();
 
-        //If all the values are not default then the file was read correctly
+        //If the values are not default then the file was read correctly
         if(savedAxes.getAxisX() != 0 && savedAxes.getAxisY() != 0 && savedAxes.getAxisZ() != 0)
         {
             //This will send a notification to the user to let them know it is running as an important task
@@ -120,8 +117,8 @@ public class DryerWorker extends Worker
 
 
     /**
-     * Uses OkHttp and WebSocket Listener to POST a JSON value as request to the Raspberry Pi's API. The value will be the saved range from Calibrate.
-     * A do-while loop is used to check if a variable from the WebSocket Listener has changed yet.
+     * Uses OkHttp to POST a JSON value as request to the Raspberry Pi's API. The value will be the saved range from Calibrate
+     * A response code is used to determine if the dryer has stopped or an error has happened.
      * @return int which determines the result of attempting to connect to API.
      */
     private int connectToApi(AxesModel savedAxes)
@@ -129,8 +126,7 @@ public class DryerWorker extends Worker
         Log.i("Dryer Worker API", "Method has started");
 
         //Setup Json String
-        String json = "{ \"process\": \"Start\",\n" +
-                        "\"axisX\":" + savedAxes.getAxisX() + ",\n" +
+        String json = "{\"axisX\":" + savedAxes.getAxisX() + ",\n" +
                         "\"axisY\":" + savedAxes.getAxisY() + ",\n" +
                         "\"axisZ\":" + savedAxes.getAxisZ() +  "}";
 
@@ -147,16 +143,26 @@ public class DryerWorker extends Worker
 
         //Setup OkHttpClient
         OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder().url("ws://" + piModel.getIpAddress() + ":" + piModel.getSocketPort()).build();
-        DryerWebSocketListener listener = new DryerWebSocketListener();
 
-        //Setup the builder so that it does close early or end early
+        //Setup the builder so that it does not time out after 10 seconds (Needed for dryer
+        //The Write/Read Connection is open for a long time since a dryer could take up to two hours to finish.
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
-        builder.connectTimeout(3, TimeUnit.HOURS) // connect timeout
+        builder.connectTimeout(1, TimeUnit.MINUTES) // connect timeout
                 .writeTimeout(3, TimeUnit.HOURS) // write timeout
-                .readTimeout(30, TimeUnit.SECONDS); // read timeout
+                .readTimeout(3, TimeUnit.HOURS); // read timeout
         client = builder.build();
 
+        //Makes the attribute of the request a JSON request
+        MediaType JSON = MediaType.get("application/json; charset=utf-8");
+        RequestBody body = RequestBody.Companion.create(json, JSON);
+
+        //Setup the request and pick the URL
+        Request postRequest = new Request.Builder()
+                .post(body)
+                .url("http://" + piModel.getIpAddress() + ":" + piModel.getPort() + "/DryPi/dryStop")  //api that is being called
+                .addHeader("cache-control", "no-cache")
+                .addHeader("Authorization", "Bearer " + piModel.getToken()) //Security Token
+                .build();
 
         Log.i("Dryer Worker API", "OkHttpClient has been built");
         Log.i("Dryer Worker API", "IpAddress - " + piModel.getIpAddress() + " Port - " + piModel.getPort());
@@ -167,32 +173,29 @@ public class DryerWorker extends Worker
         {
             Log.i("Dryer Worker API", "Attempting to connect to API");
 
-            //connect to Websockets server and send json
-            WebSocket ws = client.newWebSocket(request, listener);
-            ws.send(json);
+            //Execute call.
+            Response response = client.newCall(postRequest).execute();
 
-            //While status number is less then 0 loop. Do this to assume the socket has not responded
-            int i = -1;
+            //Take the response and save it to a string.
+            int statusCode = response.code();
 
-            do //do-while is used so 10 seconds isn't wasted after a response
+            Log.i("Dryer Worker API", "Response status is " + statusCode);
+            Log.i("Dryer Worker API", "Response body is " + response.body());
+
+            //If the API returns a bad response then assume error
+            if (statusCode != 200)
             {
-                //Every Ten seconds check for new number
-                i = listener.getStatusNumber();
-                System.out.println(i);
-                Thread.sleep(10000);
+                //Return 1 as a response error
+                Log.e("Dryer Worker API", "Connection was not successful");
+                return 1;
+            }
 
-            } while(i < 0);
-
-            //Shutdown client connection to websockets if not already.
-            client.dispatcher().executorService().shutdown();
-
-
-            //Return the result based on the listener's message
+            //Return a 0 as success
             Log.i("Dryer Worker API", "Connection was successful");
-            return i;
+            return 0;
 
         }
-        catch (Exception e)
+        catch (IOException e)
         {
             Log.w("Dryer Worker API", "Connection failed");
             Log.e("Dryer Worker API", e.toString());
