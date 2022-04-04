@@ -10,12 +10,14 @@ public class ClientModel
     //Variables
     private String ipAddress;
     private String port;
+    private int socketPort;
     private String token; //Security Token needed to access API
 
     //Constructor
-    public ClientModel(String ipAddress, String port, String token) {
+    public ClientModel(String ipAddress, String port, int socketPort, String token) {
         this.ipAddress = ipAddress;
         this.port = port;
+        this.socketPort = socketPort;
         this.token = token;
     }
 
@@ -23,6 +25,7 @@ public class ClientModel
     public ClientModel() {
         ipAddress = "192.168.0.23";
         port = "7069";
+        socketPort = 9607;
         token = "justUseATimer";
     }
 
@@ -49,5 +52,13 @@ public class ClientModel
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public int getSocketPort() {
+        return socketPort;
+    }
+
+    public void setSocketPort(int socketPort) {
+        this.socketPort = socketPort;
     }
 }
