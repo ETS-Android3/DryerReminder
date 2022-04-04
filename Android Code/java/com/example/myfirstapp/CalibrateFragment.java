@@ -22,7 +22,6 @@ import androidx.work.WorkManager;
 
 import com.example.myfirstapp.background.CalibrateWorker;
 import com.example.myfirstapp.databinding.FragmentCalibrateBinding;
-import com.example.myfirstapp.presenter.CalibrateContract;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;

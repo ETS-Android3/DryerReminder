@@ -19,6 +19,7 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.myfirstapp.databinding.FragmentHomeBinding;
 import com.example.myfirstapp.model.AxesModel;
+import com.example.myfirstapp.model.WebTestCalled;
 
 
 import java.io.BufferedReader;
@@ -82,6 +83,7 @@ public class HomeFragment extends Fragment
         //Go to settings page
         view.findViewById(R.id.settings_button).setOnClickListener(new View.OnClickListener()
         {
+
             @Override
             public void onClick(View view) {
                 Log.i("Home Fragment Settings", "Settings Button Clicked");
