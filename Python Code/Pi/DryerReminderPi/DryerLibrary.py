@@ -262,7 +262,7 @@ def justMain(given_range):
         append_axes(AxesModel.AxesModel(axies['x'], axies['y'], axies['z']))
         array_size_check()
         time.sleep(.2)
-
+        sense.clear()
         #If dryer moving status is false then stop loop
         if (moving == False):
             break

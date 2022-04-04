@@ -20,12 +20,12 @@ import DryerService
 import CalibrateService
 #import WasherService
 import AxesModel
-#import DryerSOCKet
 
 
 #Intialize the varaibles for handling the ipAddress, port, and the sercurity token.
-IPADDRESS = '192.168.0.23'
+IPADDRESS = '172.24.170.0'
 PORT = "7069"
+SOCKETPORT = 9607
 TOKEN = "justUseATimer"
 
 #Defines the service to run and API's to start.
@@ -36,7 +36,7 @@ auth = HTTPTokenAuth(scheme='Bearer')
 #Logging Configure
 logging.basicConfig(filename='dryer.log',
     format='%(asctime)s-%(levelname)s-%(message)s', level=logging.DEBUG)
-logger = logging.getLogger('DryerAPI')
+logger = logging.getLogger('DryerSocket')
 logHandler = handlers.RotatingFileHandler('dryer.log', maxBytes=1000000, backupCount=1)
 logger.addHandler(logHandler)
 
@@ -198,8 +198,6 @@ api.add_resource(Calibrate, '/DryPi/calibrate')
 api.add_resource(Adjust, '/DryPi/adjust')
 
 
-
 #Runs the service when started, defines the host and port.
 if __name__ == '__main__':
     app.run(debug=False, host=IPADDRESS, port=PORT)
-    
