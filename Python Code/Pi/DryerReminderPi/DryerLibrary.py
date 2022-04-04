@@ -42,7 +42,6 @@ logger = logging.getLogger('DryerLibrary')
 logHandler = handlers.RotatingFileHandler('dryer.log', maxBytes=1000000, backupCount=1)
 logger.addHandler(logHandler)
 
-
 def append_axes(AxesModel):
     """Adds values from the x, y, and z AxesModel object to the global Array.
     

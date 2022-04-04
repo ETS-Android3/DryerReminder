@@ -20,6 +20,7 @@ import DryerService
 import CalibrateService
 #import WasherService
 import AxesModel
+#import DryerSOCKet
 
 
 #Intialize the varaibles for handling the ipAddress, port, and the sercurity token.
@@ -200,4 +201,5 @@ api.add_resource(Adjust, '/DryPi/adjust')
 
 #Runs the service when started, defines the host and port.
 if __name__ == '__main__':
-    app.run(debug=True, host=IPADDRESS, port=PORT)
+    app.run(debug=False, host=IPADDRESS, port=PORT)
+    
