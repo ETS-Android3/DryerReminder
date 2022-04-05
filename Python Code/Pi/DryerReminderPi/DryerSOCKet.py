@@ -7,7 +7,7 @@ import AxesModel
 import DryerService
 import _thread
 
-IPADDRESS = '172.24.170.0'
+IPADDRESS = '192.168.0.23'
 PORT = 9607
 
 #Logging Configure

@@ -23,9 +23,8 @@ import AxesModel
 
 
 #Intialize the varaibles for handling the ipAddress, port, and the sercurity token.
-IPADDRESS = '172.24.170.0'
+IPADDRESS = '192.168.0.23'
 PORT = "7069"
-SOCKETPORT = 9607
 TOKEN = "justUseATimer"
 
 #Defines the service to run and API's to start.
