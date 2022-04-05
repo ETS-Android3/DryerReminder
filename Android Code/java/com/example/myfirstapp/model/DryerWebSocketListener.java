@@ -18,7 +18,7 @@ public class DryerWebSocketListener extends WebSocketListener
     private static final int NORMAL_CLOSURE_STATUS = 1000;
 
     //The Status of the dryer and if the websockets has received a message
-    int statusNumber = -1;
+    int statusNumber = 2;
 
     /**
      * This is called when a connection to the websockets has been made.
@@ -29,6 +29,7 @@ public class DryerWebSocketListener extends WebSocketListener
     public void onOpen(WebSocket webSocket, Response response)
     {
         Log.i("Dryer Socket Listener", "Connection with Socket Made");
+        statusNumber = -1;
 
     }
 
@@ -50,10 +51,10 @@ public class DryerWebSocketListener extends WebSocketListener
             Log.i("Dryer Socket Listener", "Dryer has finished");
             statusNumber =  0;
         }
-        else //if the wrong message is sent then return 1, meaning it failed
+        else //if the wrong message is sent then return 3, meaning it failed
         {
             Log.w("Dryer Socket Listener", "An Error Occurred with the Pi");
-            statusNumber = 1;
+            statusNumber = 3;
         }
         webSocket.close(NORMAL_CLOSURE_STATUS, "Goodbye!");
 

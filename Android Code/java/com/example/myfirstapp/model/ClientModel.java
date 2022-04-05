@@ -9,8 +9,8 @@ public class ClientModel
 {
     //Variables
     private String ipAddress;
-    private String port;
-    private int socketPort;
+    private String port; //Port for Restful service
+    private int socketPort; //Port for WebSocket
     private String token; //Security Token needed to access API
 
     //Constructor
