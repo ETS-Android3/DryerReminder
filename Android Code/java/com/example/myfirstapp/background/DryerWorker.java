@@ -171,17 +171,20 @@ public class DryerWorker extends Worker
             WebSocket ws = client.newWebSocket(request, listener);
             ws.send(json);
 
-            //While status number is less then 0 loop. Do this to assume the socket has not responded
-            int i = -1;
+            //Assume connection was not made until number changes
+            int statusNumber = 2;
 
-            do //do-while is used so 10 seconds isn't wasted after a response
+            //Wait for connection to be made.
+            Thread.sleep(5000);
+            statusNumber = listener.getStatusNumber();
+
+            do //do-while is used so 5 seconds isn't wasted after a response
             {
                 //Every Ten seconds check for new number
-                i = listener.getStatusNumber();
-                System.out.println(i);
-                Thread.sleep(10000);
+                statusNumber = listener.getStatusNumber();
+                Thread.sleep(5000);
 
-            } while(i < 0);
+            } while(statusNumber == -1);
 
             //Shutdown client connection to websockets if not already.
             client.dispatcher().executorService().shutdown();
@@ -189,7 +192,7 @@ public class DryerWorker extends Worker
 
             //Return the result based on the listener's message
             Log.i("Dryer Worker API", "Connection was successful");
-            return i;
+            return statusNumber;
 
         }
         catch (Exception e)
