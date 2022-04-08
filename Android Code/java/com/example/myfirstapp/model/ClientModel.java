@@ -23,7 +23,7 @@ public class ClientModel
 
     //Default Constructor
     public ClientModel() {
-        ipAddress = "192.168.0.23";
+        ipAddress = "172.24.145.170";
         port = "7069";
         socketPort = 9607;
         token = "justUseATimer";
