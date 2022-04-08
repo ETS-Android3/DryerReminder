@@ -16,4 +16,13 @@
     <string name="calibrate_warning_text">*Your device has already been calibrated</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string-array name="minutes_array">
+        <item>Never</item>
+        <item>1 Minute</item>
+        <item>5 Minutes</item>
+        <item>10 Minutes</item>
+        <item>15 Minutes</item>
+    </string-array>
+
 </resources>
