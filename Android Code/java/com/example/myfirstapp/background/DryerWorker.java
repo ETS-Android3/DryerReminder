@@ -275,7 +275,7 @@ public class DryerWorker extends Worker
         String title = "Dryer Reminder";
         String message = "Your Dryer detection has started!";
         Notification notification = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_2_ID)
-                .setSmallIcon(R.drawable.ic_one)
+                .setSmallIcon(R.drawable.ic_stat_name)
                 .setContentTitle(title)
                 .setContentText(message)
                 .build();

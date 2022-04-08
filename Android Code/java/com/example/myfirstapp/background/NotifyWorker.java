@@ -153,7 +153,7 @@ public class NotifyWorker extends Worker
 
         String title = "Dryer Reminder";
         Notification notification = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_1_ID)
-                .setSmallIcon(R.drawable.ic_one)
+                .setSmallIcon(R.drawable.ic_stat_name)
                 .setContentTitle(title)
                 .setContentText(message)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
