@@ -70,11 +70,11 @@ Much of the documentation of the project was done before work began. A Sitemap w
 
 ###### Android Sitemap that details the path users will take to navigate the application
 
-<img src="https://github.com/Mmohler1/DryerReminder/blob/main/Design/Logical.png" alt="diagram" width="25%">
+<img src="https://github.com/Mmohler1/DryerReminder/blob/main/Design/Logical.png" alt="diagram" width="50%">
 
 ###### Logical Diagram of the entire project
 
-<img src="https://github.com/Mmohler1/DryerReminder/blob/main/Design/FlowchartNew.png" alt="diagram" width="25%">
+<img src="https://github.com/Mmohler1/DryerReminder/blob/main/Design/FlowchartNew.png" alt="diagram" width="75%">
 
 ###### Flowchart of how the Raspberry Pi determines the user's dryer has stopped
 
