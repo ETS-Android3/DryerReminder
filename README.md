@@ -26,14 +26,23 @@ I used many technologies when developing the Dryer Reminder. Not only was it imp
 
 ### Hardware
 
-<b>Raspberry Pi 3 Model B</b> – I was a major fan of the Raspberry Pi devices and hade multiple available to me. I always wanted to develop something that used a Raspberry Pi and this project seemed to be a good choice. 
+<b>Raspberry Pi 3 Model B</b> – I am a major fan of the Raspberry Pi devices and hade multiple in my inventory, ready to use. I always wanted to develop something that used a Raspberry Pi and this project seemed to be a good choice. 
 
+<b>Sense HAT</b> – The Sense HAT was an easy pick for an accelerometer to work with. I tested my idea with other accelerometers and while they worked too, no libraries were publicly available for me to add to the project. The Sense HAT not only had a free library, but it was much easier to setup and use.
 
+<b>Samsung Galaxy S8+</b> - This phone was chosen as the only android device I developed for as it is my current phone. I had made some tutorial applications with it in the past, so I had some experience with it as well.
 
+### Languages
 
+<b>Python</b> – When it comes to developing on the Raspberry Pi the two most common languages are C and Python. Out of the two I had the most experience with Python, especially working with imbedded hardware. While C runs faster, speed is not a factor for this project and since I have plans to make this open source the readability of Python made it the language of choice.  
 
+<b>Java</b> – Android development was going to be new for me, so I knew I wanted to work with a language that I understand the most. I have the most experience with Java as a language and have barely investigated Kotilin, so I did not want to learn a new language and architecture at the same time. The default language on my IDE was JDK 11 so I decided to stick with that for the project.
 
+## RESTful Service and Client
 
+<b>Flask</b> – The research I had done with deploying a RESTful service on the Raspberry Pi had Flask come out as the number one pick. It was fairly easy for me to setup a service that I could communicate with using PostMan so it was an easy decision to make. It also supported Basic HTTP authentication, which I needed for my security. 
+
+<b>OkHttp</b> – Since I was new with android development, I wanted to find a library that I could practice with on my desktop first. Thankfully, I was able to setup the security and connect to the service on the Raspberry Pi easily and was even able to copy and paste my Java code from my Spring Boot Application to my Android Application
 
 
 
