@@ -64,7 +64,8 @@ While I had experience with Raspberry Pi’s before, I did not have any using it
 
 I had decided to use Object Oriented Programming principles when it came to developing for both the Android Application and the Raspberry Pi. I had plenty of experience using OOP when programing for Java based applications, but not with Python applications. I stuck with OOP for Python since I knew it would make my code more readable and easier to use when running my API. Logging was also a major part of both applications. Since my device runs off an API, it was important to include the date and time in the logs so I could sync them up if an error occurred. This way it would be easier to discover where the problem is. The logs print where they are at in both application, what they are doing, and what data they are processing. The Python code only uses debug for its logging levels, but the java application also takes advantage of info, warning, and error levels.
 
-![Image of Home Wireframe](https://github.com/Mmohler1/DryerReminder/blob/main/Design/Android%20Sitemap.png)
+<img src="https://github.com/Mmohler1/DryerReminder/blob/main/Design/Android%20Sitemap.png" alt="diagram" width="50%">
+
 
 ###### Android Sitemap
 
