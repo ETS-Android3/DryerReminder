@@ -22,7 +22,7 @@ The non-functional requirement for the Dryer Reminder was security. Since the Pi
 
 ## Technologies used and why?
 
-I used many technologies when developing the Dryer Reminder. Not only was it important to get the hardware and software right for the Pi and mobile application, but also the tools used to develop these applications. Most the decision made to use them came down to three factors. My experience with them, how simple were they to learn if I did not use them, and if they could be freely used.
+I used many technologies when developing the Dryer Reminder. Not only was it important to get the hardware and software right for the Pi and mobile application, but also the tools used to develop these applications. Most the decision made to use them came down to three factors. My experience with them, how simple were they to learn if I had no experience, and if they could be freely used.
 
 ### Hardware
 
@@ -44,7 +44,13 @@ I used many technologies when developing the Dryer Reminder. Not only was it imp
 
 <b>OkHttp</b> – Since I was new with android development, I wanted to find a library that I could practice with on my desktop first. Thankfully, I was able to setup the security and connect to the service on the Raspberry Pi easily and was even able to copy and paste my Java code from my Spring Boot Application to my Android Application
 
+## Integrated Development Environment (IDE)
 
+<b>Android Studio</b> – My little experience I had developing for Android was on Android Studio. I did not want to spend more time learning a different IDE when exploring Androids architecture. 
+
+<b>Thonny</b> – I have had the most experience developing python applications using Thonny and wanted to stick with it for most of my project. I did decide to turn to another IDE for the bulk of development with the Pi Application, but much of the early code on the Pi and testing was done with Thonny since it is far less taxing on the Pi.
+
+<b>VSCode</b> – A very powerful IDE that made the refactoring of my prototype to the finish product much simpler. Near the end of development 
 
 
 
