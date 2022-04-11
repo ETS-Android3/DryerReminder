@@ -70,17 +70,17 @@ Much of the documentation of the project was done before work began. A Sitemap w
 
 ###### Android Sitemap that details the path users will take to navigate the application
 
-
+  
 <img src="https://github.com/Mmohler1/DryerReminder/blob/main/Design/Logical.png" alt="diagram" width="70%">
 
 ###### Logical Diagram of the entire project
 
-
+  
 <img src="https://github.com/Mmohler1/DryerReminder/blob/main/Design/FlowchartNew.png" alt="diagram" width="60%">
 
 ###### Flowchart of how the Raspberry Pi determines the user's dryer has stopped
 
-
+  
 ## Risks and Challenges
 
 The biggest risk of this entire project was if an accelerometer could read the difference between the dryer when it is and is not moving. Before I had even started the project, I knew that if I was going to get this to work, I would have to see if an accelerometer, that is available for the Raspberry Pi, could detect motion from a dryer. I had made a simple protype made up using a breadboard, MPU6050, and a small LCD screen to read the movement. Using a camera from my phone, I had recorded the prototype while moving and not moving on the dryer. I then wrote down the highest and lowest values from each recording. It was then I knew my idea could work and started to decide on how I could implement it with code.
