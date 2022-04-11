@@ -69,12 +69,12 @@ Much of the documentation of the project was done before work began. A Sitemap w
 <img src="https://github.com/Mmohler1/DryerReminder/blob/main/Design/Android%20Sitemap.png" alt="diagram" width="75%">
 
 ###### Android Sitemap that details the path users will take to navigate the application
+---
 
-  
 <img src="https://github.com/Mmohler1/DryerReminder/blob/main/Design/Logical.png" alt="diagram" width="70%">
 
 ###### Logical Diagram of the entire project
-
+---
   
 <img src="https://github.com/Mmohler1/DryerReminder/blob/main/Design/FlowchartNew.png" alt="diagram" width="60%">
 
