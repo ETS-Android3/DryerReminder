@@ -1,6 +1,7 @@
 # DryerReminder
 
-<img src="https://github.com/Mmohler1/DryerReminder/blob/main/Design/PiLogo.jpg" alt="diagram" width="60%">
+<img src="https://github.com/Mmohler1/DryerReminder/blob/main/Design/PiLogo.jpg" alt="diagram" width="20%">
+<img src="https://github.com/Mmohler1/DryerReminder/blob/main/Design/Android-Logo-500x313.png" alt="diagram" width="2%">
 
 ## What is the DryerReminder?
 The Dryer Reminder is a Raspberry Pi 3 project that a user can attach to their dryer to let them know when it has stopped so that they can collect their laundry. The device can do this using the attached Sense Hat’s accelerometer, which is an instrument that computers can communicate with to read movement. The device then checks for a lack of motion using the accelerometer and if it reads that for long enough then it will determine the dryer is off. The Raspberry Pi with have this process started over a RESTful Service and WebSocket, which communicates with an Android Application. The app was developed with the Samsung Galaxy 8+ in mind and when the process has stopped, the user will get a notification set off from the Pi’s response.
