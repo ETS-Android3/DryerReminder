@@ -18,7 +18,7 @@ The high-level functional requirement for The Raspberry Pi was simple. An accele
 
 The android application had more functional requirements since the user would be interacting with that more then the Pi itself. A notification being set off when the device gets the ok sign from the Raspberry Pi is the most important feature in the application. The mobile application itself also had multiple pages to not only start the device but determine other settings as well. These pages and were Home, Dryer, Settings, Notify, Adjust, and Calibrate. Home is the page the user starts at when they open the application. The Dryer page is what the user uses to start the dryer process on the Pi. The Settings page contains the pages for Calibrate, Adjust, and Reminder. Calibrate is used to calibrate the accelerometer when it is not moving so that the Pi can use it as comparison when the dryer is moving. Adjust controls the sensitivity of the device so the user can set it based on their needs. Finally, notify is a page that allows the user to set multiple notifications after the first one so that they do not forget their laundry. 
 
-The non-functional requirement for the Dryer Reminder was security. Since the Pi will use an API to communicate with itself and the android application, security is a must. Many hackers have used unsecure IOT devices to break into the security of other devices and I did not want my device to be one of those. So, I decided to go with HTTP Authentication that uses a single Bearer token. If the device that is trying to connect to the Pi does not have the same bearer token, then it refuses connection to that device. 
+The non-functional requirement for the Dryer Reminder was security. Since the Pi will use an API to communicate with itself and the android application, security is a must. Many hackers have used unsecure IOT devices to break into the security of other devices and I did not want my device to be one of those. So, I decided to go with HTTP Authentication that uses a single Bearer token. If the device that is trying to connect to the Pi does not have the same bearer token, then it refuses connection to that device.
 
 ## Technologies used and why?
 
@@ -63,6 +63,10 @@ While I had experience with Raspberry Pi’s before, I did not have any using it
 ## Technical Approach
 
 I had decided to use Object Oriented Programming principles when it came to developing for both the Android Application and the Raspberry Pi. I had plenty of experience using OOP when programing for Java based applications, but not with Python applications. I stuck with OOP for Python since I knew it would make my code more readable and easier to use when running my API. Logging was also a major part of both applications. Since my device runs off an API, it was important to include the date and time in the logs so I could sync them up if an error occurred. This way it would be easier to discover where the problem is. The logs print where they are at in both application, what they are doing, and what data they are processing. The Python code only uses debug for its logging levels, but the java application also takes advantage of info, warning, and error levels.
+
+![Image of Home Wireframe](https://github.com/Mmohler1/DryerReminder/blob/main/Design/Android%20Sitemap.png)
+
+###### Android Sitemap
 
 ## Risks and Challenges
 
