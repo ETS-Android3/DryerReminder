@@ -70,11 +70,11 @@ Much of the documentation of the project was done before work began. A Sitemap w
 
 ###### Android Sitemap that details the path users will take to navigate the application
 
-<img src="https://github.com/Mmohler1/DryerReminder/blob/main/Design/Logical.png" alt="diagram" width="50%">
+<img src="https://github.com/Mmohler1/DryerReminder/blob/main/Design/Logical.png" alt="diagram" width="70%">
 
 ###### Logical Diagram of the entire project
 
-<img src="https://github.com/Mmohler1/DryerReminder/blob/main/Design/FlowchartNew.png" alt="diagram" width="75%">
+<img src="https://github.com/Mmohler1/DryerReminder/blob/main/Design/FlowchartNew.png" alt="diagram" width="60%">
 
 ###### Flowchart of how the Raspberry Pi determines the user's dryer has stopped
 
@@ -87,17 +87,4 @@ Another issue that I had avoided thanks to planning is that I decided to go with
 A big risk for any project is losing all the work that one has made up to that point. Hardware failures, losing a laptop, hard drive malfunctions, etc. As any good programmer should do, I had kept my Python and Java code updated on my GitHub repository and committed any changes during and after my code sessions. I also keep all my school files, which include my documentation, on my OneDrive. This means that any failure on my laptop or desktop would mean I cannot easily access my files with another device. I have also uploaded my documentation to GitHub which would give me another place to get my documentation if necessary.
   
 Out of all challenges for this entire project was how much time it would take to complete the entire thing. I was not only making a programing for the Raspberry Pi, but a responsive application on android with multiple pages and features. Senior year at university was nothing to scoff at and I had to do that with my part time job and an internship I started during the second half of development. I used Monday.com to keep track of my school assignments and my Dryer Reminder sprints. Notably I took the initiative during my two-week winter break and developed the entire application for the Raspberry Pi. This gave me plenty of time to develop my Android application and by mid-March I had completed 90% of my project. I had enough time available to me that I experiment with a WebSocket and had it finished before my Capstone Showcase. 
-  
-
-The design for the entire project can be found here
-https://github.com/Mmohler1/DryerReminder/tree/main/Design
-
-The wireframes I made for the android app are also here
-https://github.com/Mmohler1/DryerReminder/tree/main/Design/Wireframe
-
-Project Proposal, Requirements, and User Stories
-https://github.com/Mmohler1/DryerReminder/tree/main/Design/Project%20Proposal
-
-![Image of Home Wireframe](https://github.com/Mmohler1/DryerReminder/blob/main/Design/Android%20Sitemap.png)
-
-Here is how every page of the android application relates to each other.
+ 
