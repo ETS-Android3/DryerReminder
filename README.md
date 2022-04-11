@@ -38,13 +38,13 @@ I used many technologies when developing the Dryer Reminder. Not only was it imp
 
 <b>Java</b> – Android development was going to be new for me, so I knew I wanted to work with a language that I understand the most. I have the most experience with Java as a language and have barely investigated Kotilin, so I did not want to learn a new language and architecture at the same time. The default language on my IDE was JDK 11 so I decided to stick with that for the project.
 
-## RESTful Service and Client
+### RESTful Service and Client
 
 <b>Flask</b> – The research I had done with deploying a RESTful service on the Raspberry Pi had Flask come out as the number one pick. It was fairly easy for me to setup a service that I could communicate with using PostMan so it was an easy decision to make. It also supported Basic HTTP authentication, which I needed for my security. 
 
 <b>OkHttp</b> – Since I was new with android development, I wanted to find a library that I could practice with on my desktop first. Thankfully, I was able to setup the security and connect to the service on the Raspberry Pi easily and was even able to copy and paste my Java code from my Spring Boot Application to my Android Application
 
-## Integrated Development Environment (IDE)
+### Integrated Development Environment (IDE)
 
 <b>Android Studio</b> – My little experience I had developing for Android was on Android Studio. I did not want to spend more time learning a different IDE when exploring Androids architecture. 
 
@@ -52,7 +52,28 @@ I used many technologies when developing the Dryer Reminder. Not only was it imp
 
 <b>VSCode</b> – A very powerful IDE that made the refactoring of my prototype to the finish product much simpler. Near the end of development 
 
+## New Technologies
 
+While I had some experience with many of the technologies above, it was a new experience working with them the way that I did. Most of the new technologies like Flask and Okhttp were used because they were not only popular, but easy to learn. This made it easier to find information on the technology when debugging issues. It was necessary because I had no experience with a REST API between two devices that are not running on the same machine. I had never run them on both a Raspberry Pi and Android Device before the Dryer Reminder was being developed.
+
+Much of the decisions I made on Android were recommended in the documentation by Google themselves. Gradle, activity fragments, workers and more were all used by the official tutorials that Android has available. I choose Android itself because it is what I have used personally for the past few years and had very some experience with making copycat applications with tutorials, but nothing I personally made myself. I see a lot of use in android development as phone applications are the new standard. So having experience under my belt for developing for one now will be useful in the future.
+  
+While I had experience with Raspberry Pi’s before, I did not have any using it with imbedded hardware.  I had even practiced over the summer with a breadboard and python applications to get an idea of how they work and can be wired up. This did not end up being needed in the final product, but it was useful for experimenting if an accelerometer could even read the movement coming from the dryer. It even allowed me to develop a very early protype for detecting motion that was essential for developing the project.
+
+## Technical Approach
+
+I had decided to use Object Oriented Programming principles when it came to developing for both the Android Application and the Raspberry Pi. I had plenty of experience using OOP when programing for Java based applications, but not with Python applications. I stuck with OOP for Python since I knew it would make my code more readable and easier to use when running my API. Logging was also a major part of both applications. Since my device runs off an API, it was important to include the date and time in the logs so I could sync them up if an error occurred. This way it would be easier to discover where the problem is. The logs print where they are at in both application, what they are doing, and what data they are processing. The Python code only uses debug for its logging levels, but the java application also takes advantage of info, warning, and error levels.
+
+## Risks and Challenges
+
+The biggest risk of this entire project was if an accelerometer could read the difference between the dryer when it is and is not moving. Before I had even started the project, I knew that if I was going to get this to work, I would have to see if an accelerometer, that is available for the Raspberry Pi, could detect motion from a dryer. I had made a simple protype made up using a breadboard, MPU6050, and a small LCD screen to read the movement. Using a camera from my phone, I had recorded the prototype while moving and not moving on the dryer. I then wrote down the highest and lowest values from each recording. It was then I knew my idea could work and started to decide on how I could implement it with code.
+
+Another risk that I had avoided thanks to planning is that I decided to go with a Raspberry Pi 3 Model B because I had two of them available to use. Part way through the begging of the planning phases my device had broken, which would have left me in a jam trying to test technologies in the early phase. Not having my Raspberry Pi during critical moments where I needed to showcase my device would have been detrimental too. However, since I was prepared, I had a second one ready to use and even bought a third one, along with a second Sense HAT to avoid this problem if it happened again in the future.
+  
+A big risk for any project is losing all the work that one has made up to that point. Hardware failures, losing a laptop, hard drive malfunctions, etc. As any good programmer should do, I had kept my Python and Java code updated on my GitHub repository and committed any changes during and after my code sessions. I also keep all my school files, which include my documentation, on my OneDrive. This means that any failure on my laptop or desktop would mean I cannot easily access my files with another device. I have also uploaded my documentation to GitHub which would give me another place to get my documentation if necessary.
+  
+The biggest challenge for this entire project was how much time it would take to complete the entire thing. I was not only making a programing for the Raspberry Pi, but a responsive application on android with multiple pages and features. Senior year at university was nothing to scoff at and I had to do that with my part time job and an internship I started during the second half of development. I used Monday.com to keep track of my school assignments and my Dryer Reminder sprints. Notably I took the initiative during my two-week winter break and developed the entire application for the Raspberry Pi. This gave me plenty of time to develop my Android application and by mid-March I had completed 90% of my project. I had enough time available to me that I experiment with a WebSocket and had it finished before my Capstone Showcase. 
+  
 
 The design for the entire project can be found here
 https://github.com/Mmohler1/DryerReminder/tree/main/Design
