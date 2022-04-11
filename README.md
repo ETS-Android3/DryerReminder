@@ -64,10 +64,19 @@ While I had experience with Raspberry Pi’s before, I did not have any using it
 
 I had decided to use Object Oriented Programming principles when it came to developing for both the Android Application and the Raspberry Pi. I had plenty of experience using OOP when programing for Java based applications, but not with Python applications. I stuck with OOP for Python since I knew it would make my code more readable and easier to use when running my API. Logging was also a major part of both applications. Since my device runs off an API, it was important to include the date and time in the logs so I could sync them up if an error occurred. This way it would be easier to discover where the problem is. The logs print where they are at in both application, what they are doing, and what data they are processing. The Python code only uses debug for its logging levels, but the java application also takes advantage of info, warning, and error levels.
 
-<img src="https://github.com/Mmohler1/DryerReminder/blob/main/Design/Android%20Sitemap.png" alt="diagram" width="50%">
+Much of the documentation of the project was done before work began. A Sitemap was made up to showcase how users will navigate the website. A logical diagram was used to show how the application on both devices communicate with each other and what technologies were used during that process. Wireframes were setup to get an idea how the android pages would look, and more. All of these documents can be found [Here](https://github.com/Mmohler1/DryerReminder/tree/main/Design), but here is a sample of a few of them.
 
+<img src="https://github.com/Mmohler1/DryerReminder/blob/main/Design/Android%20Sitemap.png" alt="diagram" width="75%">
 
-###### Android Sitemap
+###### Android Sitemap that details the path users will take to navigate the application
+
+<img src="https://github.com/Mmohler1/DryerReminder/blob/main/Design/Logical.png" alt="diagram" width="25%">
+
+###### Logical Diagram of the entire project
+
+<img src="https://github.com/Mmohler1/DryerReminder/blob/main/Design/FlowchartNew.png" alt="diagram" width="25%">
+
+###### Flowchart of how the Raspberry Pi determines the user's dryer has stopped
 
 ## Risks and Challenges
 
