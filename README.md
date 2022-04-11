@@ -20,6 +20,23 @@ The android application had more functional requirements since the user would be
 
 The non-functional requirement for the Dryer Reminder was security. Since the Pi will use an API to communicate with itself and the android application, security is a must. Many hackers have used unsecure IOT devices to break into the security of other devices and I did not want my device to be one of those. So, I decided to go with HTTP Authentication that uses a single Bearer token. If the device that is trying to connect to the Pi does not have the same bearer token, then it refuses connection to that device. 
 
+## Technologies used and why?
+
+I used many technologies when developing the Dryer Reminder. Not only was it important to get the hardware and software right for the Pi and mobile application, but also the tools used to develop these applications. Most the decision made to use them came down to three factors. My experience with them, how simple were they to learn if I did not use them, and if they could be freely used.
+
+### Hardware
+
+<b>Raspberry Pi 3 Model B</b> – I was a major fan of the Raspberry Pi devices and hade multiple available to me. I always wanted to develop something that used a Raspberry Pi and this project seemed to be a good choice. 
+
+
+
+
+
+
+
+
+
+
 
 
 The design for the entire project can be found here
