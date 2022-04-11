@@ -1,6 +1,7 @@
 # DryerReminder
 
 <img src="https://github.com/Mmohler1/DryerReminder/blob/main/Design/ProjectPictures/20220410_174452%20(2).jpg" alt="diagram" width="50%">
+
 ##### A Raspberry Pi 3 with a SenseHat attached to a toy washer. This was used for testing the device.
 
 ## What is the DryerReminder?
