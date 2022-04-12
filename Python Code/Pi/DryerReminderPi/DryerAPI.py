@@ -106,7 +106,7 @@ class Washer(Resource):
         print("Start - Washer API")
         logger.debug("Start - Washer API")
 
-        DryerLibrary.set_moving_false()
+        DryerLibrary.set_status_false()
 
         print("End - Washer API")
         print()

@@ -23,7 +23,7 @@ from sense_hat import SenseHat
 import AxesModel
 
 #Is the Dryer Moving?
-moving = False
+status = False
 
 #Size of the array
 SIZE = 60
@@ -154,18 +154,18 @@ def set_offset(new_offset):
         logger.error("File could not be read")
         raise Exception("File could not be made")
 
-def set_moving_false():
+def set_status_false():
     """Set the moving value to false since dryer isn't moving"""
-    global moving
-    moving = False
+    global status
+    status = False
     print("changed to false")
 
-def get_moving():
+def get_status():
     """Get the value that determines if the dryer is moving
 
     Return: Status of dryer in a boolean variable"""
     
-    return moving
+    return status
 
 def get_offset():
     """Read the offset from the config.txt file. Defaults to a 3 when no file is found.
@@ -233,7 +233,7 @@ def justMain(given_range):
 
     count_check = 0
     global saved_range
-    global moving
+    global status
 
     logger.debug("Starting: Shake Detection")
     print("Starting: Shake Detection")
@@ -250,7 +250,7 @@ def justMain(given_range):
     saved_range = AxesModel.AxesModel(saved_range_x, saved_range_y, saved_range_z)
     
     #Change status of dryer to moving
-    moving = True
+    status = True
 
     #Setup IMU
     sense = SenseHat()
@@ -264,7 +264,7 @@ def justMain(given_range):
         time.sleep(.2)
         sense.clear()
         #If dryer moving status is false then stop loop
-        if (moving == False):
+        if (status == False):
             break
         
         if len(axes) == 0:
@@ -293,5 +293,4 @@ def justMain(given_range):
 if __name__ == '__main__':
     #calibrate()
     justMain(AxesModel.AxesModel(.0027, .0029, .0040))
-    #while True:
-    #    justMain(calibrate())
+    #justMain(calibrate())
