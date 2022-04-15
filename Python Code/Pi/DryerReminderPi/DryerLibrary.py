@@ -15,7 +15,7 @@
 import time #For the sleep command
 
 #Logging
-import logging 
+import logging
 import logging.handlers as handlers
 
 #Let's IMU reed from the excelerameter
@@ -44,18 +44,19 @@ logger.addHandler(logHandler)
 
 def append_axes(AxesModel):
     """Adds values from the x, y, and z AxesModel object to the global Array.
-    
+
     Arg: Current x,y,and z value, in an AxesModel object,from the accelerometer"""
-    
-    logger.debug("     ~ Append Axis X: %s Axis Y: %s Axis Z: %s", AxesModel.get_axis_x(),AxesModel.get_axis_y(), AxesModel.get_axis_z())
+
+    logger.debug("     ~ Append Axis X: %s Axis Y: %s Axis Z: %s",
+                 AxesModel.get_axis_x(),AxesModel.get_axis_y(), AxesModel.get_axis_z())
     axes.append(AxesModel)
 
 
 def array_range(axis_a):
-    """Gets the range of the axes array inserted by running a for each 
-        loop to find the highest and lowest value. The range is the 
+    """Gets the range of the axes array inserted by running a for each
+        loop to find the highest and lowest value. The range is the
         highest value of each axis subtracted by the lowest value.
-    
+
     Arg: axis_a Array of AxesModel populated with axis values from the past few seconds
     Return: found_range AxesModel of the range found from each axis"""
 
@@ -111,7 +112,7 @@ def array_range(axis_a):
 
 
 def array_calc_ranges():
-    """Takes the data from the current array and calls a method that will calculate the 
+    """Takes the data from the current array and calls a method that will calculate the
         range. Clear that array of data afterwards."""
 
     #Define the global variables so they can be looked at outside of the function.
@@ -126,8 +127,8 @@ def array_calc_ranges():
 
 
 def array_size_check():
-    """If the array is equal to or more then the size of the constant, 
-        then call a method that will calculate the range and clear 
+    """If the array is equal to or more then the size of the constant,
+        then call a method that will calculate the range and clear
         the array for future checks"""
 
     if len(axes) >= SIZE:
@@ -140,7 +141,7 @@ def set_offset(new_offset):
     This will be called from the API.
 
     Arg: Float of the offset the user wants"""
-    
+
     #Opens file to write adjust number to it.
     logger.debug("Saving Adjust to config file")
 
@@ -164,7 +165,7 @@ def get_status():
     """Get the value that determines if the dryer is moving
 
     Return: Status of dryer in a boolean variable"""
-    
+
     return status
 
 def get_offset():
@@ -172,7 +173,7 @@ def get_offset():
         Called from within the method.
 
     Return: Float of the offset used to determine the sensitivity of the shake detection"""
-    
+
     logger.debug("Pulling Adjust to config file")
     try:
         with open("config.txt", encoding='utf8') as file:
@@ -189,12 +190,12 @@ def get_offset():
 
 
 def calibrate():
-    """Calibrate the range of the accelerometer when it is not moving. It does this 
-    by recording the movement of each axis every .2 sleep cycles and adding them to 
+    """Calibrate the range of the accelerometer when it is not moving. It does this
+    by recording the movement of each axis every .2 sleep cycles and adding them to
     an array. The size the array will get before calculating the range is based on a constant.
 
     Return: AxesModel of the range when the device is not moving"""
-    
+
     logger.debug("Starting: Calibration Check")
     print("Starting: Calibration Check")
     print("")
@@ -225,9 +226,11 @@ def calibrate():
 
 
 def justMain(given_range):
-    """The main feature of the device. Take the saved ranged from calibrate and add an offset to determine sensitivity. 
-    Save the movmemnt of the accelorometer every .2 sleep cycles. Once the array hits the SIZE constant, find the range.
-    Compare the range of the accelerometer to the range when it was not moving to determine if the device is moving.
+    """The main feature of the device. Take the saved ranged from calibrate and add an
+    offset to determine sensitivity. Save the movmemnt of the accelorometer every .2
+    sleep cycles. Once the array hits the SIZE constant, find the range. Compare the
+    range of the accelerometer to the range when it was not moving to determine if
+    the device is moving.
 
     Args: AxesModel of the calibrated saved range"""
 
@@ -248,7 +251,7 @@ def justMain(given_range):
     logger.debug("Saved Range with offset Axis X: %s Axis Y: %s Axis Z: %s", saved_range_x, saved_range_y, saved_range_z)
 
     saved_range = AxesModel.AxesModel(saved_range_x, saved_range_y, saved_range_z)
-    
+
     #Change status of dryer to moving
     status = True
 
@@ -266,10 +269,11 @@ def justMain(given_range):
         #If dryer moving status is false then stop loop
         if (status == False):
             break
-        
+
         if len(axes) == 0:
             #Check if dryer is moving or not.
             if (range_axes.get_axis_x() >= saved_range.get_axis_x()) or (range_axes.get_axis_y() >= saved_range.get_axis_y()) or (range_axes.get_axis_z() >= saved_range.get_axis_z()):
+
                 print("==Dryer is moving==")
                 logger.debug("==Dryer is moving==")
                 count_check = 0

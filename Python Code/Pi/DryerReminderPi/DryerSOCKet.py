@@ -1,11 +1,19 @@
-import asyncio
-import websockets
+""" Websocket API that will parse the messages to JSON and run the
+dryer detection process from there. The connection is made by
+knowing the ipaddress and the port to connect to. No Security was setup for this API
+as it will likely be removed from the project in the future.
+
+Author: Michael Mohler
+Data: 03/28/2022
+Version: 1
+"""
 import logging
 import logging.handlers as handlers
 import json
+import asyncio
+import websockets
 import AxesModel
 import DryerService
-import _thread
 
 IPADDRESS = '192.168.0.23'
 PORT = 9607
@@ -17,14 +25,22 @@ logger = logging.getLogger('DryerAPI')
 logHandler = handlers.RotatingFileHandler('dryer.log', maxBytes=1000000, backupCount=1)
 logger.addHandler(logHandler)
 
+
+#Log that the socket server has started
 logging.debug("Start - Dryer Socket")
 print("Start - Dryer Socket")
-    
+
 async def dryer(websocket, path):
+    """When a connection to a client is made and it recieves a message, parse the string to a json
+    and check if the process says start. If so run the dryer detection process.
+
+    Arg: websocket - Websocket Protocall
+    Arg: path - The URI path """
+
     logging.debug("Dryer Socket - Client Connected")
     print("Dryer Socket - Client Connected")
 
-    #Try to read message
+    #Try to read the message it just recieved
     try:
         async for message in websocket:
             logging.debug("Dryer Socket - Recieved: " + message)
@@ -36,7 +52,7 @@ async def dryer(websocket, path):
 
 
             #If the first part of the message says start then start the dryer
-            if(dryer_process == "Start"):
+            if dryer_process == "Start":
                 logging.debug("Dryer Socket - Dryer Has Started")
 
                 #Try to read the JSON string int he second part of the message
@@ -64,21 +80,16 @@ async def dryer(websocket, path):
                     logging.error("Unkown Error")
                     await websocket.send("Unkown Error")
 
-            if(dryer_process == "End"):
-                logging.debug("Dryer Socket - Dryer Detection Should Stop")
-
-                #Sets dryer status to false
-                DryerLibrary.set_moving_false()
-
-                await websocket.send("Dryer Detection Stopped")
-
             print("End - Dryer Socket")
             print()
             logging.debug("End - Dryer Socket")
-    except websockets.exceptions.ConnectionClosed as e:
+    except websockets.exceptions.ConnectionClosed:
         print("Client Disconnected")
 
 def main():
+    """Start all the server processes when the file is called. This includes running
+    the server and looping it. """
+
     #Start the server and loop it
     start_server = websockets.serve(dryer, IPADDRESS, PORT)
     asyncio.get_event_loop().run_until_complete(start_server)

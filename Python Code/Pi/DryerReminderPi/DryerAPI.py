@@ -42,6 +42,9 @@ logger.addHandler(logHandler)
 #Method used to verify token for security
 @auth.verify_token
 def verify_token(token):
+    """Token Method that checks if the bearer token used is correct. Reject
+    connection if it is incorrect."""
+
     #If token is correct then allow access to the API if not then deny it.
     if token == TOKEN:
         logger.debug("API - Access Authorized:")
@@ -57,7 +60,7 @@ class Dryer(Resource):
     @classmethod
     @auth.login_required
     def post(cls):
-        """Post for Dryer
+        """Recieves a post from the /dryerStop API
 
         Return: JSON and Response status"""
 
@@ -99,7 +102,7 @@ class Washer(Resource):
     @classmethod
     @auth.login_required
     def post(cls):
-        """Post for Washer
+        """Recieves a post from the /washerStop API
 
         Return: JSON and Response status"""
 
@@ -116,7 +119,7 @@ class Washer(Resource):
 
 
 class Calibrate(Resource):
-    """#Calibrate the accelerometer by finding the axes when the device does not move 
+    """#Calibrate the accelerometer by finding the axes when the device does not move
         and sending the results back over JSON.
 
     Returns a response status code and JSON of the Axes model"""
@@ -124,7 +127,7 @@ class Calibrate(Resource):
     @classmethod
     @auth.login_required
     def post(cls):
-        """Post for Calibrate. Despite being a post, does not take in any data.
+        """Recieves a post, with no data, from the /calibrate API
 
         Return: JSON and Response status"""
 
@@ -147,7 +150,7 @@ class Calibrate(Resource):
 
 class Adjust(Resource):
     """Update the offset to better detect when the device is or is not moving.
-        Takes in a Json value of the number and calls the method from DryerLibrary directly. 
+        Takes in a Json value of the number and calls the method from DryerLibrary directly.
         Then send a response value of the string Adjust
 
     Returns a response status code"""
@@ -155,8 +158,8 @@ class Adjust(Resource):
     @classmethod
     @auth.login_required
     def post(cls):
-        """Post for Adjust, takes in the adjust number and calls method to have 
-            it saved to a text file.
+        """Post for Adjust, takes in the adjust number from the /adjust api.
+        Calls method to have it saved to a text file.
 
         Return: JSON and Response status"""
 
