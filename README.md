@@ -12,7 +12,7 @@ Dryers will often tell their users how long it will take before they can collect
 If it isn’t already obvious, the above problem has bothered me for many years. It is a running gag in my family that if our dryer says it has 10 minutes left, we gasp and say it will be done in 25, followed by repeating that joke until it finally stops. Not to mention how often I just ignored the timer I set on my phone because of how unlikely it was the dryer stopped this time. I would often image myself with a solution that sent me a notification to my phone when the dryer stops. I really wanted somebody to come up with something and it wasn’t until I had to start thinking about a project for my senior capstone that I figured that person had to be me. 
 
 
-## High level-functional and non-function requirements
+## High level-functional and non-functional requirements
 
 The high-level functional requirement for The Raspberry Pi was simple. An accelerometer needed to be used determine when the dryer had stopped moving. There also needed to be steps put into place to prevent the device from giving a false positive. That way the user is not told the dryer has stopped when the device is still moving. 
 
